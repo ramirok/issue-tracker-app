@@ -7,7 +7,9 @@ const slice = createSlice({
   initialState: [] as Project[],
   reducers: {
     getProjects: (_state: Project[]) => retrieveProjects(),
-    createProject: (_state, _action: PayloadAction<Project>) => {},
+    createProject: (state, action: PayloadAction<Project>) => {
+      state.push(action.payload);
+    },
     updateProject: (_state, _action: PayloadAction<Project>) => {},
     markProjectComplete: (state, action: PayloadAction<Project>) => {
       return (state = state.filter(

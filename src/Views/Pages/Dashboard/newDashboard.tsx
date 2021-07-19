@@ -95,7 +95,7 @@ const NewDashboard = ({
         {/* main panel*/}
         <div className="flex flex-col w-full pl-0 md:p-4 md:space-y-4 text-2xl">
           {/* search bar */}
-          <header className=" w-full shadow-lg bg-white items-center h-20 rounded-2xl z-40">
+          <header className=" w-full shadow-lg bg-white items-center h-20 rounded-2xl">
             <div className="relative flex flex-col justify-center h-full px-3 mx-auto flex-center">
               <div className="relative items-center pl-1 flex justify-between w-full lg:max-w-68 sm:pr-2 sm:ml-0">
                 <Menu as="div" className="flex justify-center block lg:hidden">
@@ -173,7 +173,7 @@ const NewDashboard = ({
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
                   >
-                    <Menu.Items className="top-full text-lg absolute right-0 w-56 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <Menu.Items className="z-10 top-full text-lg absolute right-0 w-56 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <div className="px-1 py-1 ">
                         <Menu.Item>
                           {({ active }) => (

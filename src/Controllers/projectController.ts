@@ -29,3 +29,7 @@ export const retrieveProjects = () => {
 
   return data;
 };
+
+export const createNewProject = (project: Project): Project => {
+  return projectModel(project)!;
+};
