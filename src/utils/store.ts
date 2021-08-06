@@ -2,17 +2,15 @@ import { configureStore } from "@reduxjs/toolkit";
 import { useSelector, TypedUseSelectorHook } from "react-redux";
 
 // reducers
-import authReducer from "../Controllers/Redux/authSlice";
-import bugReducer from "../Controllers/Redux/bugSlice";
 import userReducer from "../Controllers/Redux/userSlice";
 import projectReducer from "../Controllers/Redux/projectSlice";
+import ticketReducer from "../Controllers/Redux/ticketsSlice";
 
 const store = configureStore({
   reducer: {
-    auth: authReducer,
-    bugs: bugReducer,
-    user: userReducer,
-    projects: projectReducer,
+    userData: userReducer,
+    projectsData: projectReducer,
+    ticketsData: ticketReducer,
   },
 });
 export default store;

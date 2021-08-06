@@ -11,9 +11,44 @@ export interface Bug {
 }
 
 export interface Project {
-  _id: number;
-  name: string;
+  _id: string;
+  projectName: string;
   companyName: string;
-  time: string;
+  createdAt: string;
   tags: string[];
+  members: User[];
+  completed: boolean;
+}
+
+export interface User {
+  email: string;
+  name: string;
+  picture: string;
+  user_id: string;
+  app_metadata: { roles: string[] };
+}
+
+export interface Ticket {
+  _id: string;
+  type: TicketType;
+  priority: TicketPriority;
+  project: Project;
+  name: string;
+  details: string;
+  steps?: string;
+  members: User[];
+  creator: string;
+  createdAt: string;
+  completed: boolean;
+}
+
+export enum TicketType {
+  feature = "Feature",
+  bug = "Bug",
+}
+
+export enum TicketPriority {
+  low = "Low",
+  mid = "Mid",
+  high = "High",
 }

@@ -41,7 +41,7 @@ const NewLogin = (): JSX.Element => {
                 <input
                   type="text"
                   id="sign-in-email"
-                  className="text-2xl rounded-r-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                  className="text-2xl rounded-r-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   placeholder="Your email"
                 />
               </div>
@@ -54,7 +54,7 @@ const NewLogin = (): JSX.Element => {
                 <input
                   type="password"
                   id="sign-in-email"
-                  className="text-2xl rounded-r-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm  focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                  className="text-2xl rounded-r-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm  focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   placeholder="Your password"
                 />
               </div>
@@ -73,7 +73,7 @@ const NewLogin = (): JSX.Element => {
             <div className="flex w-full">
               <button
                 type="submit"
-                className="text-2xl py-2 px-4  bg-yellow-500 text-white w-full transition duration-200 text-center font-semibold shadow-md focus:outline-none rounded-lg "
+                className="text-2xl py-2 px-4  bg-purple-500 text-white w-full transition duration-200 text-center font-semibold shadow-md focus:outline-none rounded-lg "
                 onClick={() => loginWithRedirect()}
               >
                 LOGIN

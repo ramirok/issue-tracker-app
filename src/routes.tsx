@@ -2,11 +2,13 @@ import { Redirect, Route, Switch } from "react-router-dom";
 import Landing from "./Views/Pages/Landing/Landing";
 import Page404 from "./Views/Pages/Page404/page404";
 import { useAuth0 } from "@auth0/auth0-react";
-import ProjectComponent from "./Views/Components/ProjectComponent/projectComponent";
+import DashboardProjectsSummary from "./Views/Components/DashboardProjectsSummary/DashboardProjectsSummary";
 import Tasks from "./Views/Components/Tasks/tasks";
 import CalendarComponent from "./Views/Components/Calendar/calendar";
-import ProjectPage from "./Views/Pages/Dashboard/ProjectPage/projectPage";
+import ProjectPage from "./Views/Pages/ProjectPage/projectPage";
 import Loading from "./Views/Pages/Loading/loading";
+import TicketPage from "./Views/Pages/TicketsPage/ticketsPage";
+import DashboardTicketsSummary from "./Views/Components/DashboardTicketsSummary/DashboardTicketSummary";
 
 const ROUTES: RouteObject[] = [
   {
@@ -74,9 +76,10 @@ const ROUTES: RouteObject[] = [
         exact: true,
         Component: () => (
           <>
-            <ProjectComponent />
+            <DashboardProjectsSummary />
             <Tasks />
             <CalendarComponent />
+            <DashboardTicketsSummary />
           </>
         ),
       },
@@ -86,24 +89,12 @@ const ROUTES: RouteObject[] = [
         exact: true,
         Component: () => <ProjectPage />,
       },
-      //       {
-      //         path: "/app/cart",
-      //         key: "APP_CART",
-      //         exact: true,
-      //         component: ShoppingCart,
-      //       },
-      //       {
-      //         path: "/app/checkout",
-      //         key: "APP_CHECKOUT",
-      //         exact: true,
-      //         component: Checkout,
-      //       },
-      //       {
-      //         path: "/app/orders",
-      //         key: "APP_ORDERS",
-      //         exact: true,
-      //         component: Orders,
-      //       },
+      {
+        path: "/app/dashboard/tickets",
+        key: "APP_CART",
+        exact: true,
+        Component: TicketPage,
+      },
     ],
   },
 ];

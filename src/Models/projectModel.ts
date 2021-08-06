@@ -6,10 +6,12 @@ function project(project: Project | null): Project | null {
   }
   return {
     _id: project._id,
-    name: project.name,
-    time: project.time,
+    projectName: project.projectName,
+    createdAt: project.createdAt,
     companyName: project.companyName,
     tags: project.tags,
+    members: [],
+    completed: false,
   };
 }
 

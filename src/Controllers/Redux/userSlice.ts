@@ -1,17 +1,34 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, Dispatch, PayloadAction } from "@reduxjs/toolkit";
+import { User } from "../../utils/types";
 
-type SliceState = [{ name: string }];
+interface InitialState {
+  token: string;
+  userData: User;
+}
 
 const slice = createSlice({
   name: "user",
-  initialState: [{}] as SliceState,
+  initialState: {} as InitialState,
   reducers: {
-    getUser: (state) => {
-      state.push({ name: "Ramiro Krupoviesa" });
-      state.push({ name: "John Smith " });
+    getUser: (state, action: PayloadAction<InitialState>) => {
+      state.token = action.payload.token;
+      state.userData = action.payload.userData;
     },
   },
 });
 
 export default slice.reducer;
-export const { getUser } = slice.actions;
+
+const fetchUserData = async (dispatch: Dispatch, token: string) => {
+  const response = await fetch("http://localhost:3001/users", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const parsedResponse = await response.json();
+
+  dispatch(slice.actions.getUser({ token, ...parsedResponse }));
+};
+
+export { fetchUserData };

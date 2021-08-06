@@ -18,19 +18,19 @@ const Header = (): JSX.Element => {
       <p>HOW IT WORKS</p>
       <div>
         {isLoading ? (
-          <button className="bg-yellow-500 p-2 rounded-lg w-auto text-white font-semibold">
+          <button className="bg-purple-500 p-2 rounded-lg w-auto text-white font-semibold">
             <CogIcon className="h-10 animate-spin	" />
           </button>
         ) : !isAuthenticated ? (
           <>
             <button
-              className="bg-yellow-500 p-2 rounded-lg w-32 text-white font-semibold"
+              className="bg-purple-500 p-2 rounded-lg w-32 text-white font-semibold"
               onClick={() => loginWithRedirect()}
             >
               LOGIN
             </button>
             <button
-              className="p-2 rounded-lg w-32 text-yellow-500 border border-yellow-500 font-semibold ml-10"
+              className="p-2 rounded-lg w-32 text-purple-500 border border-purple-500 font-semibold ml-10"
               onClick={() =>
                 loginWithRedirect({
                   screen_hint: "signup",
@@ -43,7 +43,7 @@ const Header = (): JSX.Element => {
         ) : (
           <>
             <Link to="/app/dashboard">
-              <button className="bg-yellow-500 p-2 rounded-lg w-auto text-white font-semibold">
+              <button className="bg-purple-500 p-2 rounded-lg w-auto text-white font-semibold">
                 DASHBOARD
               </button>
             </Link>
@@ -53,7 +53,7 @@ const Header = (): JSX.Element => {
                   returnTo: window.location.origin,
                 })
               }
-              className="p-2 rounded-lg w-auto text-yellow-500 border border-yellow-500 font-semibold ml-10"
+              className="p-2 rounded-lg w-auto text-purple-500 border border-purple-500 font-semibold ml-10"
             >
               LOG OUT
             </button>

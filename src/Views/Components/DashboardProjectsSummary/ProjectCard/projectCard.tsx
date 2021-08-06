@@ -1,13 +1,11 @@
-import { Menu, Transition } from "@headlessui/react";
+import { Menu, Popover, Transition } from "@headlessui/react";
+import { DocumentDuplicateIcon } from "@heroicons/react/outline";
 import {
   NewspaperIcon,
   DotsVerticalIcon,
   ExclamationCircleIcon,
 } from "@heroicons/react/solid";
 import { Fragment } from "react";
-import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
-import { markProjectComplete } from "../../../../Controllers/Redux/projectSlice";
 import { Project } from "../../../../utils/types";
 
 interface Props {
@@ -16,11 +14,8 @@ interface Props {
 
 const ProjectCard = (props: Props): JSX.Element => {
   const { project } = props;
-  const dispatch = useDispatch();
 
-  const markComplete = (): void => {
-    dispatch(markProjectComplete(project));
-  };
+  const markComplete = (): void => {};
 
   return (
     <div className="mb-4">
@@ -34,7 +29,9 @@ const ProjectCard = (props: Props): JSX.Element => {
             </span>
 
             <div className="flex flex-col">
-              <span className="font-bold text-black ml-2">{project.name}</span>
+              <span className="font-bold text-black ml-2">
+                {project.projectName}
+              </span>
               <span className="text-base text-gray-500  ml-2">
                 {project.companyName}
               </span>
@@ -61,7 +58,7 @@ const ProjectCard = (props: Props): JSX.Element => {
                     {({ active }) => (
                       <button
                         className={`${
-                          active ? "bg-yellow-500 text-white" : "text-gray-900"
+                          active ? "bg-purple-500 text-white" : "text-gray-900"
                         } group flex rounded-lg items-center w-full px-2 py-2 justify-between `}
                         onClick={markComplete}
                       >
@@ -91,24 +88,59 @@ const ProjectCard = (props: Props): JSX.Element => {
         </div>
 
         {/* people in this project */}
-        <div className="flex -space-x-2">
-          <Link to="/" className="">
-            <span className=" bg-black inline-block h-10 w-10 rounded-full object-cover ring-2 ring-white"></span>
-          </Link>
-          <Link to="/" className="">
-            <span className=" bg-black inline-block h-10 w-10 rounded-full object-cover ring-2 ring-white"></span>
-          </Link>
-          <Link to="/" className="">
-            <span className=" bg-black inline-block h-10 w-10 rounded-full object-cover ring-2 ring-white"></span>
-          </Link>
-          <Link to="/" className="">
-            <span className=" bg-black inline-block h-10 w-10 rounded-full object-cover ring-2 ring-white"></span>
-          </Link>
+        <div className="flex -space-x-4">
+          {project.members.map((member) => (
+            <Popover className="relative" key={member.user_id}>
+              {({ open }) => (
+                <>
+                  <Popover.Button
+                    className={`
+                ${open ? "" : "text-opacity-90"}
+                text-white group bg-orange-700 rounded-md inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75`}
+                  >
+                    <img
+                      src={member.picture}
+                      alt="profile"
+                      className="h-14 w-14 rounded-full ring-2 ring-white"
+                    />
+                  </Popover.Button>
+                  <Transition
+                    as={Fragment}
+                    enter="transition ease-out duration-200"
+                    enterFrom="opacity-0 translate-y-1"
+                    enterTo="opacity-100 translate-y-0"
+                    leave="transition ease-in duration-150"
+                    leaveFrom="opacity-100 translate-y-0"
+                    leaveTo="opacity-0 translate-y-1"
+                  >
+                    <Popover.Panel className="absolute z-10 px-4 mt-3 transform sm:px-0 lg:max-w-3xl">
+                      <div className="overflow-hidden rounded-xl shadow-lg ring-1 ring-black ring-opacity-5">
+                        <div className="flex flex-col bg-white p-1">
+                          <span className="p-2 flex justify-between border-b-2 ">
+                            {member.name}
+                          </span>
+                          <span className="p-2 flex justify-between hover:bg-purple-100">
+                            <p>{member.email}</p>
+                            <DocumentDuplicateIcon
+                              className="active:bg-green-100 active:text-green-500 h-8 ml-4 rounded-lg cursor-pointer"
+                              onClick={() => {
+                                navigator.clipboard.writeText(member.email);
+                              }}
+                            />
+                          </span>
+                        </div>
+                      </div>
+                    </Popover.Panel>
+                  </Transition>
+                </>
+              )}
+            </Popover>
+          ))}
         </div>
 
         {/* date tag */}
-        <span className="px-2 py-1 flex w-auto mt-4 items-center text-base rounded-md font-semibold text-yellow-500 bg-yellow-100">
-          CREATED: {new Date(+project.time).toDateString()}
+        <span className="px-2 py-1 flex w-auto mt-4 items-center text-base rounded-md font-semibold text-purple-500 bg-purple-100">
+          CREATED: {new Date(project.createdAt).toLocaleString()}
         </span>
       </div>
     </div>
