@@ -4,13 +4,13 @@ import {
   CollectionIcon,
   UserGroupIcon,
   ViewListIcon,
-  CalendarIcon,
   SearchIcon,
   UserIcon,
   ArrowSmLeftIcon,
   TemplateIcon,
 } from "@heroicons/react/solid";
-import { Menu, Transition } from "@headlessui/react";
+import { CalendarIcon, MenuAlt2Icon } from "@heroicons/react/outline";
+import { Menu, Popover, Transition } from "@headlessui/react";
 import { Fragment, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useDispatch } from "react-redux";
@@ -19,8 +19,10 @@ import { fetchUserData } from "../../../Controllers/Redux/userSlice";
 import { useAppSelector } from "../../../utils/store";
 import LoadingSpinner from "../../Components/LoadingSpinner/loadingSpinner";
 import { fetchTickets } from "../../../Controllers/Redux/ticketsSlice";
+import CalendarComponent from "../../Components/Calendar/calendar";
+import Tasks from "../../Components/Tasks/tasks";
 
-const NewDashboard = ({
+const Dashboard = ({
   children,
 }: {
   children: JSX.Element | JSX.Element[];
@@ -38,7 +40,7 @@ const NewDashboard = ({
   }, [dispatch, getAccessTokenSilently]);
 
   return (
-    <main className=" rounded-2xl  overflow-hidden relative">
+    <main className="rounded-2xl overflow-hidden relative h-screena">
       <div className="flex items-start justify-between">
         {/*  side panel*/}
         <div className=" hidden lg:block my-4 ml-4 shadow-lg relative w-80">
@@ -103,7 +105,7 @@ const NewDashboard = ({
           </div>
         </div>
         {/* main panel*/}
-        <div className="flex flex-col w-full pl-0 md:p-4 md:space-y-4 text-2xl">
+        <div className="flex flex-wrap w-full pl-0 md:p-4 md:space-y-4 text-2xl">
           {/* search bar */}
           <header className="w-full shadow-lg bg-white items-center h-20 rounded-2xl">
             <div className="relative flex flex-col justify-center h-full px-3 mx-auto flex-center">
@@ -193,6 +195,47 @@ const NewDashboard = ({
                     </div>
                   )}
 
+                  {/* tasks */}
+                  <Popover className="relative xl:hidden">
+                    <Popover.Button>
+                      <MenuAlt2Icon className="h-14 w-14 bg-purple-100 rounded-full p-3 ml-4" />
+                    </Popover.Button>
+
+                    <Transition
+                      as={Fragment}
+                      enter="transition ease-out duration-100"
+                      enterFrom="transform opacity-0 scale-95"
+                      enterTo="transform opacity-100 scale-100"
+                      leave="transition ease-in duration-75"
+                      leaveFrom="transform opacity-100 scale-100"
+                      leaveTo="transform opacity-0 scale-95"
+                    >
+                      <Popover.Panel className="absolute z-10 right-0 top-20">
+                        <Tasks />
+                      </Popover.Panel>
+                    </Transition>
+                  </Popover>
+                  {/* calendar */}
+                  <Popover className="relative xl:hidden">
+                    <Popover.Button>
+                      <CalendarIcon className="h-14 w-14 bg-purple-100 rounded-full p-3 ml-4" />
+                    </Popover.Button>
+
+                    <Transition
+                      as={Fragment}
+                      enter="transition ease-out duration-100"
+                      enterFrom="transform opacity-0 scale-95"
+                      enterTo="transform opacity-100 scale-100"
+                      leave="transition ease-in duration-75"
+                      leaveFrom="transform opacity-100 scale-100"
+                      leaveTo="transform opacity-0 scale-95"
+                    >
+                      <Popover.Panel className="absolute z-10 right-0 top-20">
+                        <CalendarComponent />
+                      </Popover.Panel>
+                    </Transition>
+                  </Popover>
+
                   {/* profile button */}
                   <Menu as="div" className="ml-4 flex justify-center h-14 w-14">
                     <Menu.Button>
@@ -215,7 +258,7 @@ const NewDashboard = ({
                       leaveFrom="transform opacity-100 scale-100"
                       leaveTo="transform opacity-0 scale-95"
                     >
-                      <Menu.Items className="z-10 top-full text-lg absolute right-0 w-56 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <Menu.Items className="z-10 top-20 text-lg absolute right-4 w-56 origin-top-right bg-white divide-y divide-gray-100 rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                         <div className="px-1 py-1 ">
                           <Menu.Item>
                             {({ active }) => (
@@ -261,8 +304,9 @@ const NewDashboard = ({
           </header>
 
           {/* general panel */}
-          <div className=" h-full pb-24 pt-2 pr-2 pl-2 md:pt-0 md:pr-0 md:pl-0">
-            <div className="flex flex-col flex-wrap sm:flex-row items-stretch">
+          {/* <div className="h-96 pb-24a pt-2 pr-2 pl-2 md:pt-0 md:pr-0 md:pl-0"> */}
+          <div className="pt-2 pr-2 pl-2 md:pt-0 md:pr-0 md:pl-0 w-full">
+            <div className="flex flex-col flex-wrap sm:flex-row items-stretch -mr-4">
               {children}
             </div>
           </div>
@@ -272,4 +316,4 @@ const NewDashboard = ({
   );
 };
 
-export default NewDashboard;
+export default Dashboard;

@@ -1,7 +1,7 @@
 import Header from "./Views/Components/Header/header";
 import ROUTES, { RenderRoutes } from "./routes";
 import { useAuth0 } from "@auth0/auth0-react";
-import NewDashboard from "./Views/Pages/Dashboard/newDashboard";
+import Dashboard from "./Views/Pages/Dashboard/dashboard";
 import Loading from "./Views/Pages/Loading/loading";
 import { Redirect } from "react-router-dom";
 
@@ -13,9 +13,9 @@ function App() {
       {isLoading ? (
         <Loading />
       ) : isAuthenticated ? (
-        <NewDashboard>
+        <Dashboard>
           <RenderRoutes routes={ROUTES} />
-        </NewDashboard>
+        </Dashboard>
       ) : (
         <>
           <Header />

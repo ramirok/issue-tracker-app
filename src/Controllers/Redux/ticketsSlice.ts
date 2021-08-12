@@ -19,15 +19,10 @@ const slice = createSlice({
     ticketsReceived: (state, action: PayloadAction<Ticket[]>) => {
       if (state.loading === true) {
         state.loading = false;
-        state.tickets = [...state.tickets, ...action.payload];
+        state.tickets = [...action.payload];
         state.tickets.sort((x, y) => {
           return x.completed === y.completed ? 0 : x.completed ? 1 : -1;
         });
-      }
-    },
-    ticketCreating: (state, _action: PayloadAction) => {
-      if (state.loading === false) {
-        state.loading = true;
       }
     },
     ticketCreated: (state, action: PayloadAction<Ticket>) => {
@@ -64,15 +59,19 @@ const slice = createSlice({
 
 export default slice.reducer;
 
-const fetchTickets = async (dispatch: Dispatch, token: string) => {
+const fetchTickets = async (
+  dispatch: Dispatch,
+  token: string,
+  projectId: string = ""
+) => {
   dispatch(slice.actions.ticketsLoading());
-  const response = await fetch("http://localhost:3001/tickets", {
+  const response = await fetch(`http://localhost:3001/tickets/${projectId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
   const parsedResponse = await response.json();
-  dispatch(slice.actions.ticketsReceived(parsedResponse.tickets));
+  dispatch(slice.actions.ticketsReceived(parsedResponse.data));
 };
 
 const createTicket = async (
@@ -89,7 +88,7 @@ const createTicket = async (
   }
 ) => {
   const assigned = data.assigned.map((member) => member.user_id);
-  dispatch(slice.actions.ticketCreating());
+  dispatch(slice.actions.ticketsLoading());
   const response = await fetch("http://localhost:3001/tickets", {
     method: "POST",
     headers: {
@@ -125,7 +124,7 @@ const editTicket = async (
   }
 ) => {
   const assigned = data.assigned.map((member) => member.user_id);
-  dispatch(slice.actions.ticketCreating());
+  dispatch(slice.actions.ticketsLoading());
   const response = await fetch("http://localhost:3001/tickets", {
     method: "PUT",
     headers: {
@@ -152,7 +151,7 @@ const completeTicket = async (
   token: string,
   data: { completed: boolean; _id: string }
 ) => {
-  dispatch(slice.actions.ticketCreating());
+  dispatch(slice.actions.ticketsLoading());
   const response = await fetch("http://localhost:3001/tickets", {
     method: "PUT",
     headers: {

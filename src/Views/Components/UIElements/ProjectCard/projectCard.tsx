@@ -4,9 +4,18 @@ import {
   NewspaperIcon,
   DotsVerticalIcon,
   ExclamationCircleIcon,
+  PencilIcon,
+  XCircleIcon,
 } from "@heroicons/react/solid";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
+import { useDispatch } from "react-redux";
+import {
+  completeProject,
+  deleteProject,
+} from "../../../../Controllers/Redux/projectSlice";
+import { useAppSelector } from "../../../../utils/store";
 import { Project } from "../../../../utils/types";
+import ProjectForm from "../ProjectForm/projectForm";
 
 interface Props {
   project: Project;
@@ -14,12 +23,32 @@ interface Props {
 
 const ProjectCard = (props: Props): JSX.Element => {
   const { project } = props;
-
-  const markComplete = (): void => {};
+  const dispatch = useDispatch();
+  const { userData } = useAppSelector((state) => state);
+  const [isOpen, setIsOpen] = useState(false);
+  const markComplete = async (): Promise<void> => {
+    await completeProject(dispatch, userData.token, {
+      completed: !project.completed,
+      _id: project._id,
+    });
+  };
+  const clickEdit = (): void => {
+    setIsOpen(true);
+  };
+  const clickDelete = async (): Promise<void> => {
+    await deleteProject(dispatch, userData.token, { _id: project._id });
+  };
+  const closeModal = (): void => {
+    setIsOpen(false);
+  };
 
   return (
-    <div className="mb-4">
-      <div className="shadow-lg rounded-2xl p-4 bg-white w-full">
+    <div className="mb-4 mr-4 flex-grow">
+      <div
+        className={`shadow-lg rounded-2xl p-4 bg-${
+          project.completed ? "gray-300" : "white"
+        }  w-full`}
+      >
         <div className="flex items-center justify-between mb-6">
           {/* title */}
           <div className="flex items-center">
@@ -39,7 +68,7 @@ const ProjectCard = (props: Props): JSX.Element => {
           </div>
 
           {/* dots menu */}
-          <Menu as="div" className="flex justify-center relative">
+          <Menu as="div" className="flex justify-center relative ml-4">
             <Menu.Button>
               <DotsVerticalIcon className="h-12 w-12 border rounded-full bg-gray-200 p-1" />
             </Menu.Button>
@@ -62,8 +91,36 @@ const ProjectCard = (props: Props): JSX.Element => {
                         } group flex rounded-lg items-center w-full px-2 py-2 justify-between `}
                         onClick={markComplete}
                       >
-                        MARK AS COMPLETE
+                        {project.completed
+                          ? "MARK AS INCOMPLETE"
+                          : "MARK AS COMPLETE"}
                         <ExclamationCircleIcon className="h-8 ml-4" />
+                      </button>
+                    )}
+                  </Menu.Item>
+                  <Menu.Item>
+                    {({ active }) => (
+                      <button
+                        className={`${
+                          active ? "bg-purple-500 text-white" : "text-gray-900"
+                        } group flex rounded-lg items-center w-full px-2 py-2 justify-between `}
+                        onClick={clickEdit}
+                      >
+                        EDIT
+                        <PencilIcon className="h-8 ml-4" />
+                      </button>
+                    )}
+                  </Menu.Item>
+                  <Menu.Item>
+                    {({ active }) => (
+                      <button
+                        className={`${
+                          active ? "bg-purple-500 text-white" : "text-gray-900"
+                        } group flex rounded-lg items-center w-full px-2 py-2 justify-between `}
+                        onClick={clickDelete}
+                      >
+                        DELETE
+                        <XCircleIcon className="h-8 ml-4" />
                       </button>
                     )}
                   </Menu.Item>
@@ -75,10 +132,10 @@ const ProjectCard = (props: Props): JSX.Element => {
 
         {/* technologies tags */}
         <div className="flex items-center justify-start my-4 space-x-4">
-          {project.tags.map((tag, index) => {
+          {project.tags.map((tag) => {
             return (
               <span
-                key={index}
+                key={tag}
                 className="px-2 py-1 flex items-center text-base rounded-md font-semibold text-green-500 bg-green-50"
               >
                 {tag}
@@ -101,7 +158,9 @@ const ProjectCard = (props: Props): JSX.Element => {
                     <img
                       src={member.picture}
                       alt="profile"
-                      className="h-14 w-14 rounded-full ring-2 ring-white"
+                      className={`h-14 w-14 rounded-full ${
+                        project.completed ? "" : "ring-2 ring-white"
+                      }`}
                     />
                   </Popover.Button>
                   <Transition
@@ -139,10 +198,22 @@ const ProjectCard = (props: Props): JSX.Element => {
         </div>
 
         {/* date tag */}
-        <span className="px-2 py-1 flex w-auto mt-4 items-center text-base rounded-md font-semibold text-purple-500 bg-purple-100">
+        <span
+          className={`px-2 py-1 flex w-auto mt-4 items-center text-base rounded-md font-semibold text-${
+            project.completed ? "green" : "purple"
+          }-500 bg-${project.completed ? "green" : "purple"}-100`}
+        >
+          {project.completed ? "COMPLETED - " : null}
           CREATED: {new Date(project.createdAt).toLocaleString()}
         </span>
       </div>
+      {isOpen && (
+        <ProjectForm
+          isOpen={isOpen}
+          closeModal={closeModal}
+          project={project}
+        />
+      )}
     </div>
   );
 };

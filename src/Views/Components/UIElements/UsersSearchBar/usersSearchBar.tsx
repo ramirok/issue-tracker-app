@@ -1,22 +1,23 @@
-import { useAuth0 } from "@auth0/auth0-react";
 import { Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import React, { Fragment, useState } from "react";
 import { useEffect } from "react";
+import { useAppSelector } from "../../../../utils/store";
 import { User } from "../../../../utils/types";
 
 interface Props {
   placeholder: string;
-  onChange: (e: React.FormEvent<HTMLInputElement>) => void;
+  onChange: (e: React.ChangeEvent<any>) => void;
   showSuggestions: boolean;
   setShowSuggestions: React.Dispatch<React.SetStateAction<boolean>>;
   addToMembersList: (newMember: User) => void;
   value: string;
 }
-const SearchBar = (props: Props): JSX.Element => {
+const UsersSearchBar = (props: Props): JSX.Element => {
   const [fetchedMembers, setFetchedMembers] = useState([] as User[]);
   const [suggestions, setSuggestions] = useState([] as User[]);
   const [selected, setSelected] = useState("");
+  const { userData } = useAppSelector((state) => state);
 
   const filterDataFetched = (e: React.FormEvent<HTMLInputElement>): void => {
     const newSuggestions = fetchedMembers.filter(
@@ -29,30 +30,32 @@ const SearchBar = (props: Props): JSX.Element => {
 
     setSuggestions(newSuggestions);
     if (e.currentTarget.value) {
-      setSelected(newSuggestions[0]?.name || "");
+      setSelected(newSuggestions[0]?.user_id || "");
     } else {
       setSelected("");
     }
   };
 
-  const { getAccessTokenSilently } = useAuth0();
-
   useEffect(() => {
-    getAccessTokenSilently().then((token) => {
-      fetch("http://localhost:3001/users", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((response) => response.json())
-        .then((data) => {
+    let isSubscribed = true;
+    fetch("http://localhost:3001/users", {
+      headers: { Authorization: `Bearer ${userData.token}` },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (isSubscribed) {
           setFetchedMembers(data.users);
           setSuggestions(data.users);
-        });
-    });
-  }, [getAccessTokenSilently]);
+        }
+      });
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [userData.token]);
 
   return (
-    <form
-      autoComplete="off"
+    <div
       className="relative flex items-center"
       onSubmit={(e) => {
         e.preventDefault();
@@ -70,6 +73,18 @@ const SearchBar = (props: Props): JSX.Element => {
           props.setShowSuggestions(true);
           filterDataFetched(e);
         }}
+        onKeyPress={(e) => {
+          if (e.key === "Enter") {
+            const userFound = suggestions.find(
+              (user) => user.user_id === selected
+            )!;
+            if (userFound) {
+              props.addToMembersList(userFound);
+              setSuggestions(fetchedMembers);
+              props.setShowSuggestions(false);
+            }
+          }
+        }}
       />
       <button
         type="button"
@@ -78,9 +93,15 @@ const SearchBar = (props: Props): JSX.Element => {
             ? "text-white bg-purple-500 border border-purple-500"
             : "text-purple-500 border border-purple-500"
         } `}
-        onClick={() => props.setShowSuggestions((prevState) => !prevState)}
+        onClick={() => {
+          props.setShowSuggestions((prevState) => !prevState);
+        }}
       >
-        <ChevronDownIcon className="h-8" />
+        <ChevronDownIcon
+          className={`h-8 ${
+            props.showSuggestions ? "transform rotate-180" : ""
+          } transition-all`}
+        />
       </button>
       {props.showSuggestions && (
         <Transition
@@ -92,17 +113,16 @@ const SearchBar = (props: Props): JSX.Element => {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <div className="z-10 flex flex-col absolute top-full w-full mt-1 overflow-auto bg-white rounded-lg shadow-lg max-h-40 border border-purple-300 text-xl">
+          <ul className="z-10 flex flex-col absolute top-full w-full mt-1 overflow-auto bg-white rounded-lg shadow-lg max-h-40 border border-purple-300 text-xl">
             {suggestions.length > 0 ? (
               suggestions.map((member) => (
-                <button
-                  type="submit"
+                <li
                   key={member.user_id}
                   className={`${
-                    member.name === selected
+                    member.user_id === selected
                       ? "bg-purple-500 text-white"
                       : "hover:bg-purple-100 hover:text-gray-900"
-                  } m-1 rounded-lg  py-1 px-2 flex justify-between items-center`}
+                  } m-1 rounded-lg  py-1 px-2 flex justify-between items-center cursor-pointer font-normal`}
                   onClick={() => {
                     props.addToMembersList(member);
                     setSuggestions(fetchedMembers);
@@ -118,18 +138,16 @@ const SearchBar = (props: Props): JSX.Element => {
                   {member.app_metadata.roles.map((role) => (
                     <span key={member.user_id}>{role.toUpperCase()}</span>
                   ))}
-                </button>
+                </li>
               ))
             ) : (
-              <span className="m-1 rounded-lg py-2 px-2 text-left">
-                No Results
-              </span>
+              <li className="m-1 rounded-lg py-2 px-2 text-left">No Results</li>
             )}
-          </div>
+          </ul>
         </Transition>
       )}
-    </form>
+    </div>
   );
 };
 
-export default SearchBar;
+export default UsersSearchBar;

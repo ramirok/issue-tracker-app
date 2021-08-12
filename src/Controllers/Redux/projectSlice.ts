@@ -19,11 +19,6 @@ const slice = createSlice({
         });
       }
     },
-    projectCreating: (state, _action: PayloadAction) => {
-      if (state.loading === false) {
-        state.loading = true;
-      }
-    },
     projectCreated: (state, action: PayloadAction<Project>) => {
       if (state.loading === true) {
         state.loading = false;
@@ -77,7 +72,7 @@ const createProject = async (
   }
 ) => {
   const members = data.members.map((member) => member.user_id);
-  dispatch(slice.actions.projectCreating());
+  dispatch(slice.actions.projectsLoading());
   const response = await fetch("http://localhost:3001/projects", {
     method: "POST",
     headers: {
@@ -100,7 +95,7 @@ const completeProject = async (
   token: string,
   data: { completed: boolean; _id: string }
 ) => {
-  dispatch(slice.actions.projectCreating());
+  dispatch(slice.actions.projectsLoading());
   const response = await fetch("http://localhost:3001/projects", {
     method: "PUT",
     headers: {
@@ -128,7 +123,7 @@ const editProject = async (
   }
 ) => {
   const members = data.members.map((member) => member.user_id);
-  dispatch(slice.actions.projectCreating());
+  dispatch(slice.actions.projectsLoading());
   const response = await fetch("http://localhost:3001/projects", {
     method: "PUT",
     headers: {

@@ -3,12 +3,11 @@ import Landing from "./Views/Pages/Landing/Landing";
 import Page404 from "./Views/Pages/Page404/page404";
 import { useAuth0 } from "@auth0/auth0-react";
 import DashboardProjectsSummary from "./Views/Components/DashboardProjectsSummary/DashboardProjectsSummary";
-import Tasks from "./Views/Components/Tasks/tasks";
-import CalendarComponent from "./Views/Components/Calendar/calendar";
 import ProjectPage from "./Views/Pages/ProjectPage/projectPage";
 import Loading from "./Views/Pages/Loading/loading";
 import TicketPage from "./Views/Pages/TicketsPage/ticketsPage";
 import DashboardTicketsSummary from "./Views/Components/DashboardTicketsSummary/DashboardTicketSummary";
+import DashboardCalendarAndTasks from "./Views/Components/DashboardCalendatAndTasks/dashboardCalendarAndTasks";
 
 const ROUTES: RouteObject[] = [
   {
@@ -23,7 +22,6 @@ const ROUTES: RouteObject[] = [
   {
     path: "/auth",
     key: "AUTH",
-    // component: RenderRoutes,
     Component: (props): JSX.Element => {
       return <RenderRoutes routes={props.routes} />;
     },
@@ -35,18 +33,6 @@ const ROUTES: RouteObject[] = [
       //   exact: true,
       //   Component: Signup,
       // },
-      //       {
-      //         path: "/auth/activate/:token",
-      //         key: "AUTH_ACTIVATE",
-      //         exact: true,
-      //         component: ActivateForm,
-      //       },
-      //       {
-      //         path: "/auth/google",
-      //         key: "AUTH_GOOGLE",
-      //         exact: true,
-      //         component: GoogleForm,
-      //       },
       // {
       //   path: "/auth/login",
       //   key: "AUTH_LOGIN",
@@ -77,9 +63,8 @@ const ROUTES: RouteObject[] = [
         Component: () => (
           <>
             <DashboardProjectsSummary />
-            <Tasks />
-            <CalendarComponent />
             <DashboardTicketsSummary />
+            <DashboardCalendarAndTasks />
           </>
         ),
       },
