@@ -8,6 +8,7 @@ import Loading from "./Views/Pages/Loading/loading";
 import TicketPage from "./Views/Pages/TicketsPage/ticketsPage";
 import DashboardTicketsSummary from "./Views/Components/DashboardTicketsSummary/DashboardTicketSummary";
 import DashboardCalendarAndTasks from "./Views/Components/DashboardCalendatAndTasks/dashboardCalendarAndTasks";
+import RoleManagementPage from "./Views/Pages/RoleManagmentPage/roleManagmentPage";
 
 const ROUTES: RouteObject[] = [
   {
@@ -19,34 +20,34 @@ const ROUTES: RouteObject[] = [
       return isAuthenticated ? <Redirect to="/app/dashboard" /> : <Landing />;
     },
   },
-  {
-    path: "/auth",
-    key: "AUTH",
-    Component: (props): JSX.Element => {
-      return <RenderRoutes routes={props.routes} />;
-    },
+  // {
+  //   path: "/auth",
+  //   key: "AUTH",
+  //   Component: (props): JSX.Element => {
+  //     return <RenderRoutes routes={props.routes} />;
+  //   },
 
-    routes: [
-      // {
-      //   path: "/auth/signup",
-      //   key: "AUTH_SIGNUP",
-      //   exact: true,
-      //   Component: Signup,
-      // },
-      // {
-      //   path: "/auth/login",
-      //   key: "AUTH_LOGIN",
-      //   exact: true,
-      //   Component: NewLogin,
-      // },
-      // {
-      //   path: "/auth/forgot",
-      //   key: "AUTH_FORGOT",
-      //   exact: true,
-      //   Component: ForgotPass,
-      // },
-    ],
-  },
+  // routes: [
+  // {
+  //   path: "/auth/signup",
+  //   key: "AUTH_SIGNUP",
+  //   exact: true,
+  //   Component: Signup,
+  // },
+  // {
+  //   path: "/auth/login",
+  //   key: "AUTH_LOGIN",
+  //   exact: true,
+  //   Component: NewLogin,
+  // },
+  // {
+  //   path: "/auth/forgot",
+  //   key: "AUTH_FORGOT",
+  //   exact: true,
+  //   Component: ForgotPass,
+  // },
+  // ],
+  // },
   {
     path: "/app",
     key: "APP",
@@ -79,6 +80,12 @@ const ROUTES: RouteObject[] = [
         key: "APP_CART",
         exact: true,
         Component: TicketPage,
+      },
+      {
+        path: "/app/dashboard/roles",
+        key: "APP_CART",
+        exact: true,
+        Component: RoleManagementPage,
       },
     ],
   },

@@ -25,7 +25,7 @@ const UsersSearchBar = (props: Props): JSX.Element => {
         member.name
           .toLowerCase()
           .includes(e.currentTarget.value.toLowerCase()) ||
-        member.app_metadata.roles.includes(e.currentTarget.value.toLowerCase())
+        member.roles.join(" ").includes(e.currentTarget.value.toLowerCase())
     );
 
     setSuggestions(newSuggestions);
@@ -42,10 +42,10 @@ const UsersSearchBar = (props: Props): JSX.Element => {
       headers: { Authorization: `Bearer ${userData.token}` },
     })
       .then((response) => response.json())
-      .then((data) => {
+      .then((users) => {
         if (isSubscribed) {
-          setFetchedMembers(data.users);
-          setSuggestions(data.users);
+          setFetchedMembers(users.data);
+          setSuggestions(users.data);
         }
       });
 
@@ -129,15 +129,21 @@ const UsersSearchBar = (props: Props): JSX.Element => {
                     props.setShowSuggestions(false);
                   }}
                 >
-                  <img
-                    src={member.picture}
-                    alt="profile"
-                    className="h-8 rounded-full"
-                  />
-                  <span>{member.name}</span>
-                  {member.app_metadata.roles.map((role) => (
-                    <span key={member.user_id}>{role.toUpperCase()}</span>
-                  ))}
+                  <div className="flex items-center">
+                    <img
+                      src={member.picture}
+                      alt="profile"
+                      className="h-8 rounded-full mr-2"
+                    />
+                    <span>{member.name}</span>
+                  </div>
+                  <div>
+                    {member.roles.map((role) => (
+                      <span key={member.user_id} className="ml-2">
+                        {role.toUpperCase()}
+                      </span>
+                    ))}
+                  </div>
                 </li>
               ))
             ) : (

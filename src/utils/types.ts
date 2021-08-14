@@ -25,7 +25,8 @@ export interface User {
   name: string;
   picture: string;
   user_id: string;
-  app_metadata: { roles: string[] };
+  roles: string[];
+  createdAt: string;
 }
 
 export interface Ticket {
@@ -51,4 +52,10 @@ export enum TicketPriority {
   low = "Low",
   mid = "Mid",
   high = "High",
+}
+
+export enum UserRole {
+  admin = "Admin",
+  pm = "Project Manager",
+  dev = "Developer",
 }

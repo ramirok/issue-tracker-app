@@ -72,7 +72,7 @@ const Dashboard = ({
                 <span className="mx-4">Projects</span>
               </NavLink>
               <NavLink
-                to="/app/roles"
+                to="/app/dashboard/roles"
                 className="w-full font-thin uppercase text-gray-500  flex items-center p-4 my-2 transition-colors duration-200 justify-start hover:text-purple-500"
                 activeClassName="text-purple-500 bg-gradient-to-r from-white to-purple-100 border-r-4 border-purple-500 border-r-4 border-purple-500"
               >
@@ -130,11 +130,9 @@ const Dashboard = ({
                             <NavLink
                               exact
                               to="/app/dashboard"
-                              activeClassName="bg-purple-500"
+                              activeClassName="bg-purple-500 text-yellow-50"
                               className={`${
-                                active
-                                  ? "bg-purple-500 text-white"
-                                  : "text-gray-900"
+                                active ? "bg-purple-100" : "text-gray-900"
                               } group flex rounded-lg items-center w-full px-2 py-2 justify-between mb-2`}
                             >
                               DASHBOARD
@@ -146,11 +144,9 @@ const Dashboard = ({
                           {({ active }) => (
                             <NavLink
                               to="/app/dashboard/projects"
-                              activeClassName="bg-purple-500"
+                              activeClassName="bg-purple-500 text-yellow-50"
                               className={`${
-                                active
-                                  ? "bg-purple-500 text-white"
-                                  : "text-gray-900"
+                                active ? "bg-purple-100" : "text-gray-900"
                               } group flex rounded-lg items-center w-full px-2 py-2 justify-between mb-2`}
                             >
                               PROJECTS
@@ -161,12 +157,24 @@ const Dashboard = ({
                         <Menu.Item>
                           {({ active }) => (
                             <NavLink
-                              to="/app/dashboard/tickets"
-                              activeClassName="bg-purple-500"
+                              to="/app/dashboard/roles"
+                              activeClassName="bg-purple-500 text-yellow-50"
                               className={`${
-                                active
-                                  ? "bg-purple-500 text-white"
-                                  : "text-gray-900"
+                                active ? "bg-purple-100" : "text-gray-900"
+                              } group flex rounded-lg items-center w-full px-2 py-2 justify-between mb-2`}
+                            >
+                              ROLE MANAGEMENT
+                              <UserGroupIcon className="h-8" />
+                            </NavLink>
+                          )}
+                        </Menu.Item>
+                        <Menu.Item>
+                          {({ active }) => (
+                            <NavLink
+                              to="/app/dashboard/tickets"
+                              activeClassName="bg-purple-500 text-yellow-50"
+                              className={`${
+                                active ? "bg-purple-100" : "text-gray-900"
                               } group flex rounded-lg items-center w-full px-2 py-2 justify-between`}
                             >
                               TICKETS
@@ -187,7 +195,7 @@ const Dashboard = ({
                   />
                 </div>
 
-                <div className="flex">
+                <div className="flex items-center">
                   {userData.token && (
                     <div className="font-bold mx-4 text-xl hidden sm:flex flex-col">
                       <span>Welcome</span>
@@ -196,7 +204,7 @@ const Dashboard = ({
                   )}
 
                   {/* tasks */}
-                  <Popover className="relative xl:hidden">
+                  <Popover className="relative xl:hidden flex items-center">
                     <Popover.Button>
                       <MenuAlt2Icon className="h-14 w-14 bg-purple-100 rounded-full p-3 ml-4" />
                     </Popover.Button>
@@ -216,7 +224,7 @@ const Dashboard = ({
                     </Transition>
                   </Popover>
                   {/* calendar */}
-                  <Popover className="relative xl:hidden">
+                  <Popover className="relative xl:hidden flex items-center">
                     <Popover.Button>
                       <CalendarIcon className="h-14 w-14 bg-purple-100 rounded-full p-3 ml-4" />
                     </Popover.Button>

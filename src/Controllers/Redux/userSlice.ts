@@ -28,7 +28,9 @@ const fetchUserData = async (dispatch: Dispatch, token: string) => {
   });
   const parsedResponse = await response.json();
 
-  dispatch(slice.actions.getUser({ token, ...parsedResponse }));
+  dispatch(
+    slice.actions.getUser({ token, userData: { ...parsedResponse.data } })
+  );
 };
 
 export { fetchUserData };
