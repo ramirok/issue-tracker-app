@@ -2,14 +2,14 @@ import { Listbox, Switch, Transition } from "@headlessui/react";
 import {
   CheckIcon,
   DocumentAddIcon,
+  SearchIcon,
   SelectorIcon,
 } from "@heroicons/react/solid";
 import { useCallback, useEffect } from "react";
 import { Fragment, useState } from "react";
-import { useDispatch } from "react-redux";
 import { fetchTickets } from "../../../Controllers/Redux/ticketsSlice";
 import { useAppSelector } from "../../../utils/store";
-import { Project } from "../../../utils/types";
+import { Project, Ticket } from "../../../utils/types";
 import EmptyCard from "../../Components/UIElements/EmptyCard/emptyCard";
 import TicketCard from "../../Components/UIElements/TicketCard/ticketCard";
 import LoadingSpinner from "../../Components/LoadingSpinner/loadingSpinner";
@@ -18,17 +18,17 @@ import LoadingCard from "../../Components/UIElements/LoadingCard/loadingCard";
 import TicketForm from "../../Components/UIElements/TicketForm/ticketForm";
 
 const TicketPage = (): JSX.Element => {
-  const dispatch = useDispatch();
   const ref = useRef({
     projectName: "All Projects",
-    _id: "",
+    _id: "all",
   } as Project);
-  const { ticketsData, projectsData, userData } = useAppSelector(
-    (state) => state
-  );
+  const { projectsData, userData } = useAppSelector((state) => state);
   const [isOpen, setIsOpen] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
   const [projectFilter, setProjectFilter] = useState(ref.current);
+  const [ticketsToShow, setTicketsToShow] = useState<Ticket[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [ticketFilter, setTicketFilter] = useState("");
 
   const closeModal = (): void => {
     setIsOpen(false);
@@ -36,10 +36,12 @@ const TicketPage = (): JSX.Element => {
 
   const fetchTicketsToShow = useCallback(
     async (project: Project): Promise<void> => {
-      setProjectFilter(project);
-      fetchTickets(dispatch, userData.token, project._id);
+      setLoading(true);
+      const tickets = await fetchTickets(userData.token, project._id);
+      setTicketsToShow(tickets);
+      setLoading(false);
     },
-    [dispatch, userData.token]
+    [userData.token]
   );
 
   useEffect(() => {
@@ -48,23 +50,32 @@ const TicketPage = (): JSX.Element => {
     }
   }, [projectsData, fetchTicketsToShow]);
 
+  let showingItems = false;
   return (
     <>
-      <div className="bg-purple-100 p-2 w-full items-center sm:h-20 h-32 rounded-2xl mb-2 flex justify-start">
-        <button
-          onClick={() => setIsOpen(true)}
-          className="bg-white h-full rounded-2xl shadow-md mr-4"
-        >
-          <DocumentAddIcon className="text-green-500 h-full w-20 p-2" />
-        </button>
-
+      <div className="bg-purple-100 p-2 w-full items-center sm:h-20 h-32 rounded-2xl mb-2 flex justify-start mr-4a">
+        {(userData.userData.roles.includes("admin") ||
+          userData.userData.roles.includes("pm")) && (
+          <button
+            onClick={() => setIsOpen(true)}
+            className="bg-white h-full rounded-2xl shadow-md mr-4"
+          >
+            <DocumentAddIcon className="text-green-500 h-full w-20 p-2" />
+          </button>
+        )}
         {projectsData.loading ? (
           <span className="mr-4 bg-white h-full rounded-2xl shadow-md p-2 flex items-center">
             Loading
             <LoadingSpinner className="h-12 w-12" />
           </span>
         ) : projectsData.projects.length > 0 ? (
-          <Listbox value={projectFilter} onChange={fetchTicketsToShow}>
+          <Listbox
+            value={projectFilter}
+            onChange={(value) => {
+              fetchTicketsToShow(value);
+              setProjectFilter(value);
+            }}
+          >
             <div className="h-full mr-4 flex-grow max-w-xs bg-white rounded-2xl shadow-md">
               <Listbox.Button className="text-left h-full w-full py-2 px-4 flex items-center justify-between">
                 {projectFilter.projectName}
@@ -149,7 +160,7 @@ const TicketPage = (): JSX.Element => {
           </Listbox>
         ) : null}
 
-        <div className="flex-grow  max-w-xs bg-white h-full rounded-2xl shadow-md py-2 px-4 flex items-center justify-between">
+        <div className="flex-grow  max-w-xs bg-white h-full rounded-2xl shadow-md py-2 px-4 flex items-center justify-between mr-2">
           <span className=" mr-2 text-left">Show Completed</span>
           <div>
             <Switch
@@ -169,38 +180,87 @@ const TicketPage = (): JSX.Element => {
             </Switch>
           </div>
         </div>
-
-        {isOpen && <TicketForm closeModal={closeModal} isOpen={isOpen} />}
+        {isOpen && (
+          <TicketForm
+            closeModal={closeModal}
+            isOpen={isOpen}
+            setTicketsToShow={setTicketsToShow}
+          />
+        )}
       </div>
-      {ticketsData.loading ? (
+      <div className="bg-purple-100 p-2 w-full items-center sm:h-20 h-32 rounded-2xl mb-2 flex justify-start mr-4a">
+        <div className="flex items-center h-full relative">
+          <input
+            className="h-full px-4 mr-4 flex-grow max-w-xs bg-white rounded-2xl shadow-md focus:outline-none"
+            placeholder="Search by name..."
+            value={ticketFilter}
+            onChange={(e) => setTicketFilter(e.currentTarget.value)}
+          />
+          <SearchIcon className="h-8 w-8 absolute right-8" />
+        </div>
+      </div>
+      {loading ? (
         <div className="flex w-full justify-center">
           <span className="mt-10">
             <LoadingCard />
           </span>
         </div>
-      ) : ticketsData.tickets.length > 0 ? (
-        <div className="flex flex-wrap -mr-4">
-          {ticketsData.tickets.map((ticket) => {
-            if (projectFilter._id === ticket.project._id) {
-              if (showCompleted) {
-                return <TicketCard ticket={ticket} key={ticket._id} />;
-              } else {
-                if (!ticket.completed) {
-                  return <TicketCard ticket={ticket} key={ticket._id} />;
+      ) : ticketsToShow.length > 0 ? (
+        <div className="flex flex-wrap">
+          {ticketsToShow
+            .filter((user) =>
+              user.name.toLowerCase().includes(ticketFilter.toLowerCase())
+            )
+            .map((ticket, index, array) => {
+              if (projectFilter._id === ticket.project._id) {
+                if (showCompleted) {
+                  showingItems = true;
+                  return (
+                    <TicketCard
+                      ticket={ticket}
+                      key={ticket._id}
+                      setTicketsToShow={setTicketsToShow}
+                    />
+                  );
+                } else {
+                  if (!ticket.completed) {
+                    showingItems = true;
+                    return (
+                      <TicketCard
+                        ticket={ticket}
+                        key={ticket._id}
+                        setTicketsToShow={setTicketsToShow}
+                      />
+                    );
+                  }
+                }
+              } else if (projectFilter.projectName === "All Projects") {
+                if (showCompleted) {
+                  showingItems = true;
+                  return (
+                    <TicketCard
+                      ticket={ticket}
+                      key={ticket._id}
+                      setTicketsToShow={setTicketsToShow}
+                    />
+                  );
+                } else {
+                  if (!ticket.completed) {
+                    showingItems = true;
+                    return (
+                      <TicketCard
+                        ticket={ticket}
+                        key={ticket._id}
+                        setTicketsToShow={setTicketsToShow}
+                      />
+                    );
+                  }
                 }
               }
-            } else if (projectFilter.projectName === "All Projects") {
-              if (showCompleted) {
-                return <TicketCard ticket={ticket} key={ticket._id} />;
-              } else {
-                if (!ticket.completed) {
-                  return <TicketCard ticket={ticket} key={ticket._id} />;
-                }
-              }
-            }
-
-            return null;
-          })}
+              return index + 1 === array.length && !showingItems ? (
+                <EmptyCard key={"none"} />
+              ) : null;
+            })}
         </div>
       ) : (
         <EmptyCard />

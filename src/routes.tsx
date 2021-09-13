@@ -1,6 +1,5 @@
 import { Redirect, Route, Switch } from "react-router-dom";
 import Landing from "./Views/Pages/Landing/Landing";
-import Page404 from "./Views/Pages/Page404/page404";
 import { useAuth0 } from "@auth0/auth0-react";
 import DashboardProjectsSummary from "./Views/Components/DashboardProjectsSummary/DashboardProjectsSummary";
 import ProjectPage from "./Views/Pages/ProjectPage/projectPage";
@@ -9,6 +8,12 @@ import TicketPage from "./Views/Pages/TicketsPage/ticketsPage";
 import DashboardTicketsSummary from "./Views/Components/DashboardTicketsSummary/DashboardTicketSummary";
 import DashboardCalendarAndTasks from "./Views/Components/DashboardCalendatAndTasks/dashboardCalendarAndTasks";
 import RoleManagementPage from "./Views/Pages/RoleManagmentPage/roleManagmentPage";
+import SingleTicketPage from "./Views/Pages/SingleTicketPage/singleTicketPage";
+import Login from "./Views/Pages/Login/login";
+import Header from "./Views/Components/Header/header";
+import Dashboard from "./Views/Pages/Dashboard/dashboard";
+import RedirectTo404 from "./Views/Pages/Page404/redirectTo404";
+import Page404 from "./Views/Pages/Page404/page404";
 
 const ROUTES: RouteObject[] = [
   {
@@ -16,45 +21,37 @@ const ROUTES: RouteObject[] = [
     key: "ROOT",
     exact: true,
     Component: () => {
-      const { isAuthenticated } = useAuth0();
-      return isAuthenticated ? <Redirect to="/app/dashboard" /> : <Landing />;
+      const { isAuthenticated, isLoading } = useAuth0();
+      if (isLoading) {
+        return <Loading />;
+      }
+      return isAuthenticated ? (
+        <Redirect to="/app/dashboard" />
+      ) : (
+        <>
+          <Header />
+          <Landing />
+        </>
+      );
     },
   },
-  // {
-  //   path: "/auth",
-  //   key: "AUTH",
-  //   Component: (props): JSX.Element => {
-  //     return <RenderRoutes routes={props.routes} />;
-  //   },
-
-  // routes: [
-  // {
-  //   path: "/auth/signup",
-  //   key: "AUTH_SIGNUP",
-  //   exact: true,
-  //   Component: Signup,
-  // },
-  // {
-  //   path: "/auth/login",
-  //   key: "AUTH_LOGIN",
-  //   exact: true,
-  //   Component: NewLogin,
-  // },
-  // {
-  //   path: "/auth/forgot",
-  //   key: "AUTH_FORGOT",
-  //   exact: true,
-  //   Component: ForgotPass,
-  // },
-  // ],
-  // },
+  { path: "/404", key: "404", exact: true, Component: Page404 },
+  { path: "/login", key: "LOGIN", exact: true, Component: Login },
   {
     path: "/app",
     key: "APP",
     Component: (props) => {
-      const { isLoading } = useAuth0();
-
-      return isLoading ? <Loading /> : <RenderRoutes routes={props.routes} />;
+      const { isLoading, isAuthenticated } = useAuth0();
+      if (isLoading) {
+        return <Loading />;
+      }
+      return isAuthenticated ? (
+        <Dashboard>
+          <RenderRoutes routes={props.routes} />
+        </Dashboard>
+      ) : (
+        <Redirect to="/" />
+      );
     },
     routes: [
       {
@@ -72,14 +69,40 @@ const ROUTES: RouteObject[] = [
       {
         path: "/app/dashboard/projects",
         key: "APP_PROJECTS",
-        exact: true,
-        Component: () => <ProjectPage />,
+        Component: (props) => <RenderRoutes routes={props.routes} />,
+        routes: [
+          {
+            path: "/app/dashboard/projects/all",
+            key: "APP_CART",
+            exact: true,
+            Component: ProjectPage,
+          },
+          // {
+          //   path: "/app/dashboard/projects/:projects",
+          //   key: "APP_PROJECTSd",
+          //   exact: true,
+          //   Component: () => <div>TESTING SINGLE PROJECT</div>,
+          // },
+        ],
       },
       {
         path: "/app/dashboard/tickets",
-        key: "APP_CART",
-        exact: true,
-        Component: TicketPage,
+        key: "APP_TICKETS",
+        Component: (props) => <RenderRoutes routes={props.routes} />,
+        routes: [
+          {
+            path: "/app/dashboard/tickets/all",
+            key: "APP_CART",
+            exact: true,
+            Component: TicketPage,
+          },
+          {
+            path: "/app/dashboard/tickets/:ticketId",
+            key: "APP_PROJECTSd",
+            exact: true,
+            Component: SingleTicketPage,
+          },
+        ],
       },
       {
         path: "/app/dashboard/roles",
@@ -111,7 +134,7 @@ export const RenderRoutes = (props: Props): JSX.Element => {
       {props.routes!.map((route) => {
         return <RouteWithSubRoutes route={route} {...route} />;
       })}
-      <Route component={Page404} />
+      <RedirectTo404 />
     </Switch>
   );
 };

@@ -4,32 +4,44 @@ import {
   CodeIcon,
   DocumentDuplicateIcon,
   LightBulbIcon,
+  MenuAlt2Icon,
 } from "@heroicons/react/outline";
 import {
+  MenuIcon,
   DotsVerticalIcon,
   ExclamationCircleIcon,
   XCircleIcon,
   PencilIcon,
+  CheckCircleIcon,
 } from "@heroicons/react/solid";
 import { Fragment, useState } from "react";
 import { useDispatch } from "react-redux";
+import { NavLink } from "react-router-dom";
 import {
   completeTicket,
   deleteTicket,
+  fetchTickets,
+  ticketsLoading,
+  ticketsReceived,
+  ticketUpdated,
 } from "../../../../Controllers/Redux/ticketsSlice";
 import { useAppSelector } from "../../../../utils/store";
 import { Ticket, TicketPriority, TicketType } from "../../../../utils/types";
+import LoadingSpinner from "../../LoadingSpinner/loadingSpinner";
 import TicketForm from "../TicketForm/ticketForm";
 
 interface Props {
   ticket: Ticket;
+  setTicketsToShow?: any;
 }
 
 const TicketCard = (props: Props): JSX.Element => {
-  const { ticket } = props;
+  const { ticket, setTicketsToShow } = props;
+  const [ticketData, setTicketData] = useState<Ticket>(ticket);
   const { userData } = useAppSelector((state) => state);
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const clickEdit = (): void => {
     setIsOpen(true);
@@ -39,117 +51,197 @@ const TicketCard = (props: Props): JSX.Element => {
   };
 
   const markComplete = async (): Promise<void> => {
-    await completeTicket(dispatch, userData.token, {
-      completed: !ticket.completed,
-      _id: ticket._id,
+    setLoading(true);
+    const [error, response] = await completeTicket(userData.token, {
+      completed: !ticketData.completed,
+      _id: ticketData._id,
     });
+    if (error) {
+      setLoading(false);
+    } else {
+      setTicketData(response);
+      setLoading(false);
+      if (setTicketsToShow) {
+        setTicketsToShow((prevState: Ticket[]) => {
+          const index = prevState.findIndex(
+            (ticket) => ticket._id === ticketData._id
+          );
+          const newState = [...prevState];
+          newState[index] = response;
+          return newState;
+        });
+      }
+      dispatch(ticketUpdated(response));
+    }
   };
 
   const clickDelete = async (): Promise<void> => {
-    await deleteTicket(dispatch, userData.token, { _id: ticket._id });
+    setLoading(true);
+    const [error] = await deleteTicket(userData.token, {
+      _id: ticket._id,
+    });
+    if (error) {
+      setLoading(false);
+    } else {
+      dispatch(ticketsLoading());
+      if (setTicketsToShow) {
+        setTicketsToShow((prevState: Ticket[]) => {
+          const newState = prevState.filter(
+            (ticket) => ticket._id !== ticketData._id
+          );
+          return newState;
+        });
+      }
+      const tickets = await fetchTickets(userData.token);
+      dispatch(ticketsReceived(tickets));
+    }
   };
 
   return (
-    <div className="mb-4 mr-4 flex-grow">
+    <div className="mb-4 mr-4 flex-grow relative">
       <div
         className={`shadow-lg rounded-2xl p-4 bg-${
-          ticket.completed ? "gray-300" : "white"
+          ticketData.completed ? "gray-300" : "white"
         } w-full h-full flex flex-col justify-between`}
       >
         {/* title */}
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center">
+          <div className="flex items-center mr-6">
             {/* icon */}
             <span className="rounded-xl relative p-2 bg-blue-100">
-              {ticket.type === TicketType.feature ? (
+              {ticketData.type === TicketType.feature ? (
                 <LightBulbIcon className="h-10 w-10" />
               ) : (
                 <CodeIcon className="h-10 w-10" />
               )}
             </span>
             <div className="flex flex-col">
-              <span className="font-bold text-black ml-2">{ticket.name}</span>
+              <span className="font-bold text-black ml-2">
+                {ticketData.name}
+              </span>
               <span className="font-bold text-black ml-2 text-xl">
-                {ticket.project.projectName}
+                {ticketData.project.projectName}
               </span>
             </div>
           </div>
-          {/* dots menu */}
-          <Menu as="div" className="flex justify-center relative ml-4">
-            <Menu.Button>
-              <DotsVerticalIcon className="h-12 w-12 border rounded-full bg-gray-200 p-1" />
-            </Menu.Button>
-            <Transition
-              as={Fragment}
-              enter="transition ease-out duration-100"
-              enterFrom="transform opacity-0 scale-95"
-              enterTo="transform opacity-100 scale-100"
-              leave="transition ease-in duration-75"
-              leaveFrom="transform opacity-100 scale-100"
-              leaveTo="transform opacity-0 scale-95"
-            >
-              <Menu.Items className="z-10 text-lg absolute right-0 top-full w-max mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                <div className="px-1 py-1 ">
-                  <Menu.Item>
-                    {({ active }) => (
-                      <button
-                        className={`${
-                          active ? "bg-purple-500 text-white" : "text-gray-900"
-                        } group flex rounded-lg items-center w-full px-2 py-2 justify-between `}
-                        onClick={markComplete}
-                      >
-                        {ticket.completed
-                          ? "MARK AS INCOMPLETE"
-                          : "MARK AS COMPLETE"}
-                        <ExclamationCircleIcon className="h-8 ml-4" />
-                      </button>
-                    )}
-                  </Menu.Item>
-                  <Menu.Item>
-                    {({ active }) => (
-                      <button
-                        className={`${
-                          active ? "bg-purple-500 text-white" : "text-gray-900"
-                        } group flex rounded-lg items-center w-full px-2 py-2 justify-between `}
-                        onClick={clickEdit}
-                      >
-                        EDIT
-                        <PencilIcon className="h-8 ml-4" />
-                      </button>
-                    )}
-                  </Menu.Item>
-                  <Menu.Item>
-                    {({ active }) => (
-                      <button
-                        className={`${
-                          active ? "bg-purple-500 text-white" : "text-gray-900"
-                        } group flex rounded-lg items-center w-full px-2 py-2 justify-between `}
-                        onClick={clickDelete}
-                      >
-                        DELETE
-                        <XCircleIcon className="h-8 ml-4" />
-                      </button>
-                    )}
-                  </Menu.Item>
-                </div>
-              </Menu.Items>
-            </Transition>
-          </Menu>
+          <div className="flex">
+            <NavLink to={`/app/dashboard/tickets/${ticketData._id}`}>
+              <ArrowsExpandIcon className="h-12 w-12 border rounded-full bg-gray-200 p-1" />
+            </NavLink>
+            {/* dots menu */}
+            {(userData.userData.roles.includes("admin") ||
+              ticketData.creator === userData.userData.email) && (
+              <Menu as="div" className="flex justify-center relative ml-4">
+                <Menu.Button>
+                  <DotsVerticalIcon className="h-12 w-12 border rounded-full bg-gray-200 p-1" />
+                </Menu.Button>
+                <Transition
+                  as={Fragment}
+                  enter="transition ease-out duration-100"
+                  enterFrom="transform opacity-0 scale-95"
+                  enterTo="transform opacity-100 scale-100"
+                  leave="transition ease-in duration-75"
+                  leaveFrom="transform opacity-100 scale-100"
+                  leaveTo="transform opacity-0 scale-95"
+                >
+                  <Menu.Items className="z-20 text-lg absolute right-0 top-full w-max mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <div className="px-1 py-1 ">
+                      <Menu.Item>
+                        {({ active }) => (
+                          <button
+                            className={`${
+                              active
+                                ? "bg-purple-500 text-white"
+                                : "text-gray-900"
+                            } group flex rounded-lg items-center w-full px-2 py-2 justify-between `}
+                            onClick={markComplete}
+                          >
+                            {ticketData.completed
+                              ? "MARK AS INCOMPLETE"
+                              : "MARK AS COMPLETE"}
+                            <ExclamationCircleIcon className="h-8 ml-4" />
+                          </button>
+                        )}
+                      </Menu.Item>
+                      <Menu.Item>
+                        {({ active }) => (
+                          <button
+                            className={`${
+                              active
+                                ? "bg-purple-500 text-white"
+                                : "text-gray-900"
+                            } group flex rounded-lg items-center w-full px-2 py-2 justify-between `}
+                            onClick={clickEdit}
+                          >
+                            EDIT
+                            <PencilIcon className="h-8 ml-4" />
+                          </button>
+                        )}
+                      </Menu.Item>
+                      <Menu.Item>
+                        {({ active }) => (
+                          <button
+                            className={`${
+                              active
+                                ? "bg-purple-500 text-white"
+                                : "text-gray-900"
+                            } group flex rounded-lg items-center w-full px-2 py-2 justify-between `}
+                            onClick={clickDelete}
+                          >
+                            DELETE
+                            <XCircleIcon className="h-8 ml-4" />
+                          </button>
+                        )}
+                      </Menu.Item>
+                    </div>
+                  </Menu.Items>
+                </Transition>
+              </Menu>
+            )}
+          </div>
         </div>
 
         <div className="relative overflow-hidden h-full">
           <div className="flex h-20 mb-4 text-2xl">
             <Disclosure>
-              {({ open }) => (
+              <>
+                <Disclosure.Button className="mr-2 flex w-1/2 items-center justify-between  px-4 py-2 text-left text-purple-900 bg-purple-100 rounded-lg hover:bg-purple-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
+                  <span className="w-2/3">Details</span>
+                  <MenuAlt2Icon className={`w-8 h-8 text-purple-500`} />
+                </Disclosure.Button>
+                <Transition
+                  enter="transition duration-100 ease-out"
+                  enterFrom="transform  opacity-0"
+                  enterTo="transform  opacity-100 absolute top-0 bottom-0 w-full z-10"
+                  leave="transition duration-100 ease-out"
+                  leaveFrom="transform  opacity-100"
+                  leaveTo="transform  opacity-0 absolute top-0 bottom-0 w-full z-10"
+                >
+                  <Disclosure.Panel
+                    className={`overflow-auto border border-purple-100 rounded-lg w-full top-0 bottom-0 left-0 right-0 z-10 absolute bg-${
+                      ticketData.completed ? "gray-200" : "white"
+                    } p-4 text-gray-900`}
+                  >
+                    <Disclosure.Button className="flex w-full justify-between items-center">
+                      <span className="text-black font-bold">Details</span>
+                      <XCircleIcon className="h-10 text-purple-500 cursor-pointer" />
+                    </Disclosure.Button>
+                    {ticketData.details}
+                  </Disclosure.Panel>
+                </Transition>
+              </>
+            </Disclosure>
+            {ticketData.type === TicketType.bug && (
+              <Disclosure>
                 <>
-                  <Disclosure.Button className="mr-2 flex w-1/2 items-center justify-between items-center px-4 py-2 text-left text-purple-900 bg-purple-100 rounded-lg hover:bg-purple-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
-                    <span className="w-2/3">Details</span>
-                    <ArrowsExpandIcon
-                      className={`${
-                        open ? "" : "transform rotate-180"
-                      } w-8 h-8 text-purple-500`}
-                    />
+                  <Disclosure.Button className=" flex w-1/2 items-center justify-between px-4 py-2 text-left text-purple-900 bg-purple-100 rounded-lg hover:bg-purple-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
+                    <span className="w-2/3">Steps to Reproduce</span>
+                    <div className="flex">
+                      <DotsVerticalIcon className="-mr-4 h-8 text-purple-500 transform scale-x-75 scale-y-75" />
+                      <MenuIcon className="h-8 text-purple-500" />
+                    </div>
                   </Disclosure.Button>
+
                   <Transition
                     enter="transition duration-100 ease-out"
                     enterFrom="transform  opacity-0"
@@ -160,62 +252,29 @@ const TicketCard = (props: Props): JSX.Element => {
                   >
                     <Disclosure.Panel
                       className={`overflow-auto border border-purple-100 rounded-lg w-full top-0 bottom-0 left-0 right-0 z-10 absolute bg-${
-                        ticket.completed ? "gray-200" : "white"
+                        ticketData.completed ? "gray-200" : "white"
                       } p-4 text-gray-900`}
                     >
                       <Disclosure.Button className="flex w-full justify-between items-center">
-                        <span className="text-black font-bold">Details</span>
+                        <span className="text-black font-bold">
+                          Steps to Reproduce
+                        </span>
                         <XCircleIcon className="h-10 text-purple-500 cursor-pointer" />
                       </Disclosure.Button>
-                      {ticket.details}
+                      {ticketData.steps || (
+                        <div className="text-gray-500 text-center mx-auto mt-14">
+                          ----- Nothing specified -----
+                        </div>
+                      )}
                     </Disclosure.Panel>
                   </Transition>
                 </>
-              )}
-            </Disclosure>
-            {ticket.type === TicketType.bug && (
-              <Disclosure>
-                {({ open }) => (
-                  <>
-                    <Disclosure.Button className=" flex w-1/2 items-center justify-between px-4 py-2 text-left text-purple-900 bg-purple-100 rounded-lg hover:bg-purple-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
-                      <span className="w-2/3">Steps to Reproduce</span>
-                      <ArrowsExpandIcon
-                        className={`${
-                          open ? "" : "transform rotate-180"
-                        } w-8 h-8 text-purple-500`}
-                      />
-                    </Disclosure.Button>
-
-                    <Transition
-                      enter="transition duration-100 ease-out"
-                      enterFrom="transform  opacity-0"
-                      enterTo="transform  opacity-100 absolute top-0 bottom-0 w-full z-10"
-                      leave="transition duration-100 ease-out"
-                      leaveFrom="transform  opacity-100"
-                      leaveTo="transform  opacity-0 absolute top-0 bottom-0 w-full z-10"
-                    >
-                      <Disclosure.Panel
-                        className={`overflow-auto border border-purple-100 rounded-lg w-full top-0 bottom-0 left-0 right-0 z-10 absolute bg-${
-                          ticket.completed ? "gray-200" : "white"
-                        } p-4 text-gray-900`}
-                      >
-                        <Disclosure.Button className="flex w-full justify-between items-center">
-                          <span className="text-black font-bold">
-                            Steps to Reproduce
-                          </span>
-                          <XCircleIcon className="h-10 text-purple-500 cursor-pointer" />
-                        </Disclosure.Button>
-                        {ticket.steps}
-                      </Disclosure.Panel>
-                    </Transition>
-                  </>
-                )}
               </Disclosure>
             )}
           </div>
           {/* people in this project */}
           <div className="flex -space-x-4">
-            {ticket.members.map((member) => (
+            {ticketData.members.map((member) => (
               <Popover className="relative" key={member.user_id}>
                 {({ open }) => (
                   <>
@@ -228,7 +287,7 @@ const TicketCard = (props: Props): JSX.Element => {
                         src={member.picture}
                         alt="profile"
                         className={`h-14 w-14 rounded-full ${
-                          ticket.completed ? "" : "ring-2 ring-white"
+                          ticketData.completed ? "" : "ring-2 ring-white"
                         }`}
                       />
                     </Popover.Button>
@@ -269,41 +328,53 @@ const TicketCard = (props: Props): JSX.Element => {
           {/* date tag */}
           <div className="mb-4 px-2 py-1 flex flex-col w-auto mt-4 items-start text-base rounded-md font-semibold text-purple-500 bg-purple-100">
             <span>
-              CREATED ON: {new Date(ticket.createdAt).toLocaleString()}
+              CREATED ON: {new Date(ticketData.createdAt).toLocaleString()}
             </span>
-            <span>BY: {ticket.creator}</span>
+            <span>BY: {ticketData.creator}</span>
           </div>
-
-          {ticket.completed ? (
-            <div
-              className={`mb-4 px-2 py-1 flex flex-col w-auto mt-4 items-start text-base rounded-md font-semibold text-green-500 bg-green-100`}
-            >
-              COMPLETED
-            </div>
-          ) : (
-            <div
-              className={`mb-4 px-2 py-1 flex flex-col w-auto mt-4 items-start text-base rounded-md font-semibold text-${
-                ticket.priority === TicketPriority.low
-                  ? "green"
-                  : ticket.priority === TicketPriority.mid
-                  ? "yellow"
-                  : "red"
-              }-500 bg-${
-                ticket.priority === TicketPriority.low
-                  ? "green"
-                  : ticket.priority === TicketPriority.mid
-                  ? "yellow"
-                  : "red"
-              }-100`}
-            >
-              <span>PRIORITY: {ticket.priority.toUpperCase()}</span>
-            </div>
-          )}
+          <div className="flex justify-between">
+            {ticketData.completed ? (
+              <div
+                className={`flex items-center w-full px-2 py-1 text-base rounded-md font-semibold text-green-500 bg-green-100`}
+              >
+                <CheckCircleIcon className="mr-2 h-6 text-green-500" />
+                COMPLETED
+              </div>
+            ) : (
+              <div
+                className={`w-full px-2 py-1 text-base rounded-md font-semibold text-${
+                  ticketData.priority === TicketPriority.low
+                    ? "green"
+                    : ticketData.priority === TicketPriority.mid
+                    ? "yellow"
+                    : "red"
+                }-500 bg-${
+                  ticketData.priority === TicketPriority.low
+                    ? "green"
+                    : ticketData.priority === TicketPriority.mid
+                    ? "yellow"
+                    : "red"
+                }-100`}
+              >
+                PRIORITY: {ticketData.priority.toUpperCase()}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
+      {loading && (
+        <LoadingSpinner className="absolute bg-white text-purple-300 rounded-xl shadow-md h-24 top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2" />
+      )}
       {isOpen && (
-        <TicketForm isOpen={isOpen} closeModal={closeModal} ticket={ticket} />
+        <TicketForm
+          isOpen={isOpen}
+          closeModal={closeModal}
+          ticket={ticketData}
+          setLoading={setLoading}
+          setTicketsToShow={setTicketsToShow}
+          setTicketData={setTicketData}
+        />
       )}
     </div>
   );

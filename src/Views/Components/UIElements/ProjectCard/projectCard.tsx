@@ -12,9 +12,13 @@ import { useDispatch } from "react-redux";
 import {
   completeProject,
   deleteProject,
+  projectDeleted,
+  projectsLoading,
+  projectUpdated,
 } from "../../../../Controllers/Redux/projectSlice";
 import { useAppSelector } from "../../../../utils/store";
 import { Project } from "../../../../utils/types";
+import LoadingSpinner from "../../LoadingSpinner/loadingSpinner";
 import ProjectForm from "../ProjectForm/projectForm";
 
 interface Props {
@@ -25,25 +29,45 @@ const ProjectCard = (props: Props): JSX.Element => {
   const { project } = props;
   const dispatch = useDispatch();
   const { userData } = useAppSelector((state) => state);
+  const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+
   const markComplete = async (): Promise<void> => {
-    await completeProject(dispatch, userData.token, {
+    setLoading(true);
+    const [error, response] = await completeProject(userData.token, {
       completed: !project.completed,
       _id: project._id,
     });
+    if (error) {
+      setLoading(false);
+    } else {
+      dispatch(projectsLoading());
+      dispatch(projectUpdated(response));
+    }
   };
   const clickEdit = (): void => {
     setIsOpen(true);
   };
+
   const clickDelete = async (): Promise<void> => {
-    await deleteProject(dispatch, userData.token, { _id: project._id });
+    setLoading(true);
+    const [error, response] = await deleteProject(userData.token, {
+      _id: project._id,
+    });
+    if (error) {
+      setLoading(false);
+    } else {
+      dispatch(projectsLoading());
+      dispatch(projectDeleted(response));
+    }
   };
+
   const closeModal = (): void => {
     setIsOpen(false);
   };
 
   return (
-    <div className="mb-4 mr-4 flex-grow">
+    <div className="mb-4 mr-4 flex-grow relative">
       <div
         className={`shadow-lg rounded-2xl p-4 bg-${
           project.completed ? "gray-300" : "white"
@@ -68,66 +92,74 @@ const ProjectCard = (props: Props): JSX.Element => {
           </div>
 
           {/* dots menu */}
-          <Menu as="div" className="flex justify-center relative ml-4">
-            <Menu.Button>
-              <DotsVerticalIcon className="h-12 w-12 border rounded-full bg-gray-200 p-1" />
-            </Menu.Button>
-            <Transition
-              as={Fragment}
-              enter="transition ease-out duration-100"
-              enterFrom="transform opacity-0 scale-95"
-              enterTo="transform opacity-100 scale-100"
-              leave="transition ease-in duration-75"
-              leaveFrom="transform opacity-100 scale-100"
-              leaveTo="transform opacity-0 scale-95"
-            >
-              <Menu.Items className="z-10 text-lg absolute right-0 top-full w-max mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                <div className="px-1 py-1 ">
-                  <Menu.Item>
-                    {({ active }) => (
-                      <button
-                        className={`${
-                          active ? "bg-purple-500 text-white" : "text-gray-900"
-                        } group flex rounded-lg items-center w-full px-2 py-2 justify-between `}
-                        onClick={markComplete}
-                      >
-                        {project.completed
-                          ? "MARK AS INCOMPLETE"
-                          : "MARK AS COMPLETE"}
-                        <ExclamationCircleIcon className="h-8 ml-4" />
-                      </button>
-                    )}
-                  </Menu.Item>
-                  <Menu.Item>
-                    {({ active }) => (
-                      <button
-                        className={`${
-                          active ? "bg-purple-500 text-white" : "text-gray-900"
-                        } group flex rounded-lg items-center w-full px-2 py-2 justify-between `}
-                        onClick={clickEdit}
-                      >
-                        EDIT
-                        <PencilIcon className="h-8 ml-4" />
-                      </button>
-                    )}
-                  </Menu.Item>
-                  <Menu.Item>
-                    {({ active }) => (
-                      <button
-                        className={`${
-                          active ? "bg-purple-500 text-white" : "text-gray-900"
-                        } group flex rounded-lg items-center w-full px-2 py-2 justify-between `}
-                        onClick={clickDelete}
-                      >
-                        DELETE
-                        <XCircleIcon className="h-8 ml-4" />
-                      </button>
-                    )}
-                  </Menu.Item>
-                </div>
-              </Menu.Items>
-            </Transition>
-          </Menu>
+          {userData.userData.roles.includes("admin") && (
+            <Menu as="div" className="flex justify-center relative ml-4">
+              <Menu.Button>
+                <DotsVerticalIcon className="h-12 w-12 border rounded-full bg-gray-200 p-1" />
+              </Menu.Button>
+              <Transition
+                as={Fragment}
+                enter="transition ease-out duration-100"
+                enterFrom="transform opacity-0 scale-95"
+                enterTo="transform opacity-100 scale-100"
+                leave="transition ease-in duration-75"
+                leaveFrom="transform opacity-100 scale-100"
+                leaveTo="transform opacity-0 scale-95"
+              >
+                <Menu.Items className="z-10 text-lg absolute right-0 top-full w-max mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                  <div className="px-1 py-1 ">
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          className={`${
+                            active
+                              ? "bg-purple-500 text-white"
+                              : "text-gray-900"
+                          } group flex rounded-lg items-center w-full px-2 py-2 justify-between `}
+                          onClick={markComplete}
+                        >
+                          {project.completed
+                            ? "MARK AS INCOMPLETE"
+                            : "MARK AS COMPLETE"}
+                          <ExclamationCircleIcon className="h-8 ml-4" />
+                        </button>
+                      )}
+                    </Menu.Item>
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          className={`${
+                            active
+                              ? "bg-purple-500 text-white"
+                              : "text-gray-900"
+                          } group flex rounded-lg items-center w-full px-2 py-2 justify-between `}
+                          onClick={clickEdit}
+                        >
+                          EDIT
+                          <PencilIcon className="h-8 ml-4" />
+                        </button>
+                      )}
+                    </Menu.Item>
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          className={`${
+                            active
+                              ? "bg-purple-500 text-white"
+                              : "text-gray-900"
+                          } group flex rounded-lg items-center w-full px-2 py-2 justify-between `}
+                          onClick={clickDelete}
+                        >
+                          DELETE
+                          <XCircleIcon className="h-8 ml-4" />
+                        </button>
+                      )}
+                    </Menu.Item>
+                  </div>
+                </Menu.Items>
+              </Transition>
+            </Menu>
+          )}
         </div>
 
         {/* technologies tags */}
@@ -207,6 +239,10 @@ const ProjectCard = (props: Props): JSX.Element => {
           CREATED: {new Date(project.createdAt).toLocaleString()}
         </span>
       </div>
+
+      {loading && (
+        <LoadingSpinner className="absolute bg-white text-purple-300 rounded-xl shadow-md h-24 top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2" />
+      )}
       {isOpen && (
         <ProjectForm
           isOpen={isOpen}

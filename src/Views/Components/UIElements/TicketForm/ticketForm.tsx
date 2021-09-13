@@ -11,6 +11,9 @@ import { useDispatch } from "react-redux";
 import {
   createTicket,
   editTicket,
+  ticketCreated,
+  ticketsLoading,
+  ticketUpdated,
 } from "../../../../Controllers/Redux/ticketsSlice";
 import { useForm } from "../../../../utils/formValidation";
 import { useAppSelector } from "../../../../utils/store";
@@ -21,12 +24,16 @@ import {
   TicketType,
   User,
 } from "../../../../utils/types";
+import LoadingSpinner from "../../LoadingSpinner/loadingSpinner";
 import UsersSearchBar from "../UsersSearchBar/usersSearchBar";
 
 interface Props {
   isOpen: boolean;
   closeModal: () => void;
   ticket?: Ticket;
+  setTicketData?: (ticket: Ticket) => void;
+  setLoading?: (state: boolean) => void;
+  setTicketsToShow?: any;
 }
 
 interface FormData {
@@ -41,11 +48,22 @@ interface FormData {
 }
 
 const TicketForm = (props: Props): JSX.Element => {
-  const { isOpen, closeModal, ticket } = props;
+  const {
+    isOpen,
+    closeModal,
+    ticket,
+    setTicketData,
+    setLoading,
+    setTicketsToShow,
+  } = props;
   const { projectsData, userData } = useAppSelector((state) => state);
   const dispatch = useDispatch();
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [membersList, setMembersList] = useState(ticket ? ticket.members : []);
+  const [formStatus, setFormStatus] = useState({
+    loading: false,
+    error: false,
+  });
 
   const addToMembersList = (newMember: User): void => {
     if (
@@ -63,8 +81,11 @@ const TicketForm = (props: Props): JSX.Element => {
   };
   const submitForm = async (): Promise<void> => {
     if (membersList.length > 0) {
+      setFormStatus({ loading: true, error: false });
       if (ticket) {
-        await editTicket(dispatch, userData.token, {
+        if (setLoading) {
+        }
+        const [error, response] = await editTicket(userData.token, {
           type: data.type,
           priority: data.priority,
           project: data.project,
@@ -74,8 +95,30 @@ const TicketForm = (props: Props): JSX.Element => {
           assigned: membersList,
           _id: ticket._id,
         });
+        if (error) {
+          setFormStatus({ loading: false, error: true });
+        } else {
+          if (setTicketData) {
+            setTicketData(response);
+          }
+          if (setLoading) {
+            setLoading(false);
+          }
+          if (setTicketsToShow) {
+            setTicketsToShow((prevState: Ticket[]) => {
+              const index = prevState.findIndex(
+                (ticketFound) => ticketFound._id === ticket._id
+              );
+              const newState = [...prevState];
+              newState[index] = response;
+              return newState;
+            });
+          }
+          dispatch(ticketUpdated(response));
+          closeModal();
+        }
       } else {
-        await createTicket(dispatch, userData.token, {
+        const [error, response] = await createTicket(userData.token, {
           type: data.type,
           priority: data.priority,
           project: data.project,
@@ -84,8 +127,20 @@ const TicketForm = (props: Props): JSX.Element => {
           steps: data.steps,
           assigned: membersList,
         });
+        if (error) {
+          setFormStatus({ loading: false, error: true });
+        } else {
+          dispatch(ticketsLoading());
+          if (setTicketData) {
+            setTicketData(response);
+          }
+          if (setTicketsToShow) {
+            setTicketsToShow((prevState: Ticket[]) => [response, ...prevState]);
+          }
+          dispatch(ticketCreated(response));
+          closeModal();
+        }
       }
-      closeModal();
     }
   };
 
@@ -133,6 +188,12 @@ const TicketForm = (props: Props): JSX.Element => {
               return !!newValue._id;
             },
             message: "Must select a project.",
+          },
+        },
+        steps: {
+          custom: {
+            isValid: (value) => (value ? value.length > 3 : true),
+            message: "Steps must have a least 4 characters.",
           },
         },
       },
@@ -460,7 +521,7 @@ const TicketForm = (props: Props): JSX.Element => {
                 </div>
 
                 {projectsData.loading ? (
-                  <span>loading</span>
+                  <span>Loading</span>
                 ) : projectsData.projects.length > 0 ? (
                   <>
                     <label htmlFor="name" className="block mt-2">
@@ -469,6 +530,7 @@ const TicketForm = (props: Props): JSX.Element => {
                     <Listbox
                       value={data.project}
                       onChange={(project) => {
+                        setMembersList([]);
                         setData((prevState) => ({
                           ...prevState,
                           project,
@@ -596,7 +658,7 @@ const TicketForm = (props: Props): JSX.Element => {
                 )}
 
                 <label htmlFor="members" className="block mt-4">
-                  Project Members
+                  People assigned
                 </label>
                 <UsersSearchBar
                   placeholder="E.G. Lisa..."
@@ -605,6 +667,7 @@ const TicketForm = (props: Props): JSX.Element => {
                   setShowSuggestions={setShowSuggestions}
                   addToMembersList={addToMembersList}
                   value={data.currentMember}
+                  filter={data.project._id}
                 />
                 {membersList.length < 1 && (
                   <p className="bg-red-100 rounded-lg p-1 px-2 mb-1 text-red-500 text-base mt-2">
@@ -629,14 +692,18 @@ const TicketForm = (props: Props): JSX.Element => {
                   ))}
                 </div>
               </div>
-
-              <div className="mt-8 flex justify-between">
-                <button
-                  type="submit"
-                  className="inline-flex justify-center px-4 py-2 font-bold text-white bg-purple-500 border border-transparent rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
-                >
-                  {ticket ? "UPDATE TICKET" : "CREATE TICKET"}
-                </button>
+              <div className="mt-8 mb-4 flex justify-between">
+                {" "}
+                {formStatus.loading ? (
+                  <LoadingSpinner className="h-11 w-3/5 bg-purple-500 rounded-lg stroke-current stroke-3 text-white" />
+                ) : (
+                  <button
+                    type="submit"
+                    className="w-3/5 inline-flex justify-center px-4 py-2 font-bold text-white bg-purple-500 border border-transparent rounded-lg"
+                  >
+                    {ticket ? "UPDATE TICKET" : "CREATE TICKET"}
+                  </button>
+                )}
                 <button
                   type="button"
                   className="inline-flex justify-center px-4 py-2 font-bold text-purple-500 border border-purple-500 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
@@ -655,6 +722,11 @@ const TicketForm = (props: Props): JSX.Element => {
                   RESET
                 </button>
               </div>
+              {formStatus.error && (
+                <p className="text-red-500 text-lg absolute bottom-2 transform translate-x-1/2">
+                  Failed, please try again
+                </p>
+              )}
             </form>
           </Transition.Child>
         </div>

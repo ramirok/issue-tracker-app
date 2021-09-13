@@ -1,5 +1,6 @@
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, SearchIcon, SelectorIcon } from "@heroicons/react/solid";
+import React from "react";
 import { Fragment, useCallback, useEffect, useState } from "react";
 import { useAppSelector } from "../../../utils/store";
 import { User, UserRole } from "../../../utils/types";
@@ -37,7 +38,7 @@ const RoleManagementPage = (): JSX.Element => {
       fetchUsersToShow("all");
     }
   }, [fetchUsersToShow, userData.token]);
-
+  let lastLetter = "";
   return (
     <>
       <div className="bg-purple-100 p-2 w-full items-center sm:h-20 h-32 rounded-2xl mb-2 flex justify-start">
@@ -103,7 +104,7 @@ const RoleManagementPage = (): JSX.Element => {
             </Transition>
           </div>
         </Listbox>
-        <div className="flex items-center h-full relative">
+        <div className="flex items-center h-full relative mr-4a">
           <input
             className="h-full px-4 mr-4 flex-grow max-w-xs bg-white rounded-2xl shadow-md focus:outline-none"
             placeholder="Search by name..."
@@ -113,6 +114,7 @@ const RoleManagementPage = (): JSX.Element => {
           <SearchIcon className="h-8 w-8 absolute right-8" />
         </div>
       </div>
+
       {loading ? (
         <div className="flex w-full justify-center">
           <span className="mt-10">
@@ -120,15 +122,29 @@ const RoleManagementPage = (): JSX.Element => {
           </span>
         </div>
       ) : users.length > 0 ? (
-        <div className="flex flex-wrap -mr-4 pb-20">
-          {users
-            .filter((user) =>
-              user.name.toLowerCase().includes(userFilter.toLowerCase())
-            )
-            .map((user) => (
-              <UserCard user={user} key={user.user_id} />
-            ))}
-        </div>
+        users
+          .filter((user) =>
+            user.name.toLowerCase().includes(userFilter.toLowerCase())
+          )
+          .map((user, index, array) => {
+            lastLetter = array[index - 1]?.name[0]!;
+            return lastLetter !== user.name[0]! ? (
+              <React.Fragment key={user.user_id}>
+                <span className="w-full">
+                  <p className="bg-white h-10 w-10 flex items-center justify-center rounded-lg font-bold mb-2">
+                    {user.name[0]!}
+                  </p>
+                </span>
+                <div>
+                  <UserCard user={user} />
+                </div>
+              </React.Fragment>
+            ) : (
+              <div key={user.user_id}>
+                <UserCard user={user} />
+              </div>
+            );
+          })
       ) : (
         <EmptyCard />
       )}

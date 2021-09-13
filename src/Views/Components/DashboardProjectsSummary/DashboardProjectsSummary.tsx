@@ -4,12 +4,14 @@ import EmptyCard from "../UIElements/EmptyCard/emptyCard";
 import LoadingCard from "../UIElements/LoadingCard/loadingCard";
 
 const DashboardProjectsSummary = (): JSX.Element => {
-  const { projectsData } = useAppSelector((state) => state);
+  const { projectsData, userData } = useAppSelector((state) => state);
 
   return (
     <div className="w-full sm:w-1/2 xl:w-1/3">
       <p className="bg-white w-max p-2 px-4 pb-4 rounded-2xl rounded-b-none -mb-4 font-bold">
-        Latest Projects
+        {userData.userData.roles.includes("admin")
+          ? "Latest Projects"
+          : "Latest Projects You Are Assigned To"}
       </p>
       {projectsData.loading ? (
         <div className="mr-4 mb-4">

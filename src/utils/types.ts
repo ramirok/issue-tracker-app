@@ -43,6 +43,15 @@ export interface Ticket {
   completed: boolean;
 }
 
+export interface CommentInterface {
+  _id: string;
+  content: string;
+  owner: string;
+  ticketId: string;
+  createdAt: string;
+  creator: User;
+}
+
 export enum TicketType {
   feature = "Feature",
   bug = "Bug",

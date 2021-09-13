@@ -6,10 +6,14 @@ import { useDispatch } from "react-redux";
 import {
   createProject,
   editProject,
+  projectCreated,
+  projectsLoading,
+  projectUpdated,
 } from "../../../../Controllers/Redux/projectSlice";
 import { useForm } from "../../../../utils/formValidation";
 import { useAppSelector } from "../../../../utils/store";
 import { Project, User } from "../../../../utils/types";
+import LoadingSpinner from "../../LoadingSpinner/loadingSpinner";
 import UsersSearchBar from "../UsersSearchBar/usersSearchBar";
 
 interface Props {
@@ -29,12 +33,15 @@ const ProjectForm = (props: Props): JSX.Element => {
   const { isOpen, closeModal, project } = props;
   const dispatch = useDispatch();
   const { userData } = useAppSelector((state) => state);
-
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [tagList, setTagList] = useState(project ? project.tags : []);
   const [membersList, setMembersList] = useState(
     project ? project.members : []
   );
+  const [formStatus, setFormStatus] = useState({
+    loading: false,
+    error: false,
+  });
 
   const removeFromMembersList = (memberToRemove: User): void => {
     setMembersList((memberList) =>
@@ -61,23 +68,37 @@ const ProjectForm = (props: Props): JSX.Element => {
   };
   const submitForm = async (): Promise<void> => {
     if (membersList.length > 0 && tagList.length > 0) {
+      setFormStatus({ loading: true, error: false });
       if (project) {
-        await editProject(dispatch, userData.token, {
+        const [error, response] = await editProject(userData.token, {
           _id: project._id,
           members: membersList,
           companyName: data.companyName,
           projectName: data.projectName,
           tags: tagList,
         });
+        if (error) {
+          setFormStatus({ loading: false, error: true });
+        } else {
+          dispatch(projectsLoading());
+          dispatch(projectUpdated(response));
+          closeModal();
+        }
       } else {
-        await createProject(dispatch, userData.token, {
+        const [error, response] = await createProject(userData.token, {
           projectName: data.projectName,
           companyName: data.companyName,
           tags: tagList,
           members: membersList,
         });
+        if (error) {
+          setFormStatus({ loading: false, error: true });
+        } else {
+          dispatch(projectsLoading());
+          dispatch(projectCreated(response));
+          closeModal();
+        }
       }
-      closeModal();
     }
   };
 
@@ -234,7 +255,7 @@ const ProjectForm = (props: Props): JSX.Element => {
                   <label htmlFor="tag" className="block mt-2">
                     Project Tags
                   </label>
-                  <div className=" border flex items-center border border-gray-300 rounded-lg relative">
+                  <div className=" border flex items-center  border-gray-300 rounded-lg relative">
                     <input
                       id="tag"
                       name="currentTag"
@@ -286,12 +307,16 @@ const ProjectForm = (props: Props): JSX.Element => {
               </div>
 
               <div className="mt-8 mb-4 flex justify-between">
-                <button
-                  type="submit"
-                  className={`inline-flex justify-center px-4 py-2 font-bold text-white bg-purple-500 border border-transparent rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500`}
-                >
-                  {project ? " UPDATE PROJECT" : "CREATE PROJECT"}
-                </button>
+                {formStatus.loading ? (
+                  <LoadingSpinner className="h-11 w-3/5 bg-purple-500 rounded-lg stroke-current stroke-3 text-white" />
+                ) : (
+                  <button
+                    type="submit"
+                    className={`w-3/5 inline-flex justify-center px-4 py-2 font-bold text-white bg-purple-500 border rounded-lg`}
+                  >
+                    {project ? " UPDATE PROJECT" : "CREATE PROJECT"}
+                  </button>
+                )}
                 <button
                   type="button"
                   className="inline-flex justify-center px-4 py-2 font-bold text-purple-500 border border-purple-500 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
@@ -310,6 +335,11 @@ const ProjectForm = (props: Props): JSX.Element => {
                   RESET
                 </button>
               </div>
+              {formStatus.error && (
+                <p className="text-red-500 text-lg absolute bottom-2 transform translate-x-1/2">
+                  Failed, please try again
+                </p>
+              )}
             </form>
           </Transition.Child>
         </div>

@@ -49,6 +49,12 @@ const slice = createSlice({
 });
 
 export default slice.reducer;
+export const {
+  projectsLoading,
+  projectCreated,
+  projectUpdated,
+  projectDeleted,
+} = slice.actions;
 
 const fetchProjects = (token: string) => async (dispatch: Dispatch) => {
   dispatch(slice.actions.projectsLoading());
@@ -58,11 +64,10 @@ const fetchProjects = (token: string) => async (dispatch: Dispatch) => {
     },
   });
   const parsedResponse = await response.json();
-  dispatch(slice.actions.projectsReceived(parsedResponse.projects));
+  dispatch(slice.actions.projectsReceived(parsedResponse.data));
 };
 
 const createProject = async (
-  dispatch: Dispatch,
   token: string,
   data: {
     projectName: string;
@@ -72,7 +77,7 @@ const createProject = async (
   }
 ) => {
   const members = data.members.map((member) => member.user_id);
-  dispatch(slice.actions.projectsLoading());
+  // dispatch(slice.actions.projectsLoading());
   const response = await fetch("http://localhost:3001/projects", {
     method: "POST",
     headers: {
@@ -86,16 +91,20 @@ const createProject = async (
       members: members,
     }),
   });
-  const parsedResponse = await response.json();
-  dispatch(slice.actions.projectCreated(parsedResponse.data));
+  if (response.ok) {
+    const parsedResponse = await response.json();
+    return [false, parsedResponse.data];
+  } else {
+    return [true, null];
+  }
+  // dispatch(slice.actions.projectCreated(parsedResponse.data));
 };
 
 const completeProject = async (
-  dispatch: Dispatch,
   token: string,
   data: { completed: boolean; _id: string }
 ) => {
-  dispatch(slice.actions.projectsLoading());
+  // dispatch(slice.actions.projectsLoading());
   const response = await fetch("http://localhost:3001/projects", {
     method: "PUT",
     headers: {
@@ -107,12 +116,16 @@ const completeProject = async (
       _id: data._id,
     }),
   });
-  const parsedResponse = await response.json();
-  dispatch(slice.actions.projectUpdated(parsedResponse.data));
+  if (response.ok) {
+    const parsedResponse = await response.json();
+    return [false, parsedResponse.data];
+  } else {
+    return [true, null];
+  }
+  // dispatch(slice.actions.projectUpdated(parsedResponse.data));
 };
 
 const editProject = async (
-  dispatch: Dispatch,
   token: string,
   data: {
     _id: string;
@@ -123,7 +136,7 @@ const editProject = async (
   }
 ) => {
   const members = data.members.map((member) => member.user_id);
-  dispatch(slice.actions.projectsLoading());
+  // dispatch(slice.actions.projectsLoading());
   const response = await fetch("http://localhost:3001/projects", {
     method: "PUT",
     headers: {
@@ -138,16 +151,17 @@ const editProject = async (
       tags: data.tags,
     }),
   });
-  const parsedResponse = await response.json();
-  dispatch(slice.actions.projectUpdated(parsedResponse.data));
+  if (response.ok) {
+    const parsedResponse = await response.json();
+    return [false, parsedResponse.data];
+  } else {
+    return [true, null];
+  }
+  // dispatch(slice.actions.projectUpdated(parsedResponse.data));
 };
 
-const deleteProject = async (
-  dispatch: Dispatch,
-  token: string,
-  data: { _id: string }
-) => {
-  dispatch(slice.actions.projectsLoading());
+const deleteProject = async (token: string, data: { _id: string }) => {
+  // dispatch(slice.actions.projectsLoading());
   const response = await fetch("http://localhost:3001/projects", {
     method: "DELETE",
     headers: {
@@ -158,8 +172,13 @@ const deleteProject = async (
       _id: data._id,
     }),
   });
-  const parsedResponse = await response.json();
-  dispatch(slice.actions.projectDeleted(parsedResponse.data));
+  if (response.ok) {
+    const parsedResponse = await response.json();
+    return [false, parsedResponse.data];
+  } else {
+    return [true, null];
+  }
+  // dispatch(slice.actions.projectDeleted(parsedResponse.data));
 };
 
 export {

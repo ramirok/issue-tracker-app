@@ -1,4 +1,4 @@
-import { createSlice, Dispatch, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
   Project,
   Ticket,
@@ -20,30 +20,24 @@ const slice = createSlice({
       if (state.loading === true) {
         state.loading = false;
         state.tickets = [...action.payload];
-        state.tickets.sort((x, y) => {
-          return x.completed === y.completed ? 0 : x.completed ? 1 : -1;
-        });
       }
     },
     ticketCreated: (state, action: PayloadAction<Ticket>) => {
       if (state.loading === true) {
         state.loading = false;
-        state.tickets.push(action.payload);
-        state.tickets.sort((x, y) => {
-          return x.completed === y.completed ? 0 : x.completed ? 1 : -1;
-        });
+        state.tickets.unshift(action.payload);
+        if (state.tickets.length > 3) {
+          state.tickets.pop();
+        }
       }
     },
     ticketUpdated: (state, action: PayloadAction<Ticket>) => {
-      if (state.loading) {
-        state.loading = false;
-        const updatedTicketIndex = state.tickets.findIndex(
-          (ticket) => ticket._id === action.payload._id
-        );
+      state.loading = false;
+      const updatedTicketIndex = state.tickets.findIndex(
+        (ticket) => ticket._id === action.payload._id
+      );
+      if (updatedTicketIndex > -1) {
         state.tickets[updatedTicketIndex] = action.payload;
-        state.tickets.sort((x, y) => {
-          return x.completed === y.completed ? 0 : x.completed ? 1 : -1;
-        });
       }
     },
     ticketDeleted: (state, action: PayloadAction<Ticket>) => {
@@ -58,24 +52,31 @@ const slice = createSlice({
 });
 
 export default slice.reducer;
+export const {
+  ticketsLoading,
+  ticketUpdated,
+  ticketDeleted,
+  ticketsReceived,
+  ticketCreated,
+} = slice.actions;
 
 const fetchTickets = async (
-  dispatch: Dispatch,
   token: string,
   projectId: string = ""
-) => {
-  dispatch(slice.actions.ticketsLoading());
-  const response = await fetch(`http://localhost:3001/tickets/${projectId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+): Promise<Ticket[]> => {
+  const response = await fetch(
+    `http://localhost:3001/tickets/${projectId ? `project/${projectId}` : ""}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
   const parsedResponse = await response.json();
-  dispatch(slice.actions.ticketsReceived(parsedResponse.data));
+  return parsedResponse.data;
 };
 
 const createTicket = async (
-  dispatch: Dispatch,
   token: string,
   data: {
     type: TicketType;
@@ -86,31 +87,37 @@ const createTicket = async (
     steps?: string;
     assigned: User[];
   }
-) => {
+): Promise<[boolean, Ticket]> => {
   const assigned = data.assigned.map((member) => member.user_id);
-  dispatch(slice.actions.ticketsLoading());
+  const body: { [k: string]: any } = {
+    type: data.type,
+    priority: data.priority,
+    project: data.project._id,
+    name: data.name,
+    details: data.details,
+    assigned,
+  };
+  if (data.type === TicketType.bug) {
+    body.steps = data.steps;
+  }
   const response = await fetch("http://localhost:3001/tickets", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      type: data.type,
-      priority: data.priority,
-      project: data.project._id,
-      name: data.name,
-      details: data.details,
-      steps: data.steps,
-      assigned,
-    }),
+    body: JSON.stringify(body),
   });
-  const parsedResponse = await response.json();
-  dispatch(slice.actions.ticketCreated(parsedResponse.data));
+
+  if (response.ok) {
+    const parsedResponse = await response.json();
+    return [false, parsedResponse.data];
+  } else {
+    return [true, null as unknown as Ticket];
+  }
 };
 
 const editTicket = async (
-  dispatch: Dispatch,
   token: string,
   data: {
     type: TicketType;
@@ -122,9 +129,8 @@ const editTicket = async (
     assigned: User[];
     _id: string;
   }
-) => {
+): Promise<[boolean, Ticket]> => {
   const assigned = data.assigned.map((member) => member.user_id);
-  dispatch(slice.actions.ticketsLoading());
   const response = await fetch("http://localhost:3001/tickets", {
     method: "PUT",
     headers: {
@@ -142,16 +148,18 @@ const editTicket = async (
       _id: data._id,
     }),
   });
-  const parsedResponse = await response.json();
-  dispatch(slice.actions.ticketUpdated(parsedResponse.data));
+  if (response.ok) {
+    const parsedResponse = await response.json();
+    return [false, parsedResponse.data];
+  } else {
+    return [true, null as unknown as Ticket];
+  }
 };
 
 const completeTicket = async (
-  dispatch: Dispatch,
   token: string,
   data: { completed: boolean; _id: string }
-) => {
-  dispatch(slice.actions.ticketsLoading());
+): Promise<[boolean, Ticket]> => {
   const response = await fetch("http://localhost:3001/tickets", {
     method: "PUT",
     headers: {
@@ -163,16 +171,18 @@ const completeTicket = async (
       _id: data._id,
     }),
   });
-  const parsedResponse = await response.json();
-  dispatch(slice.actions.ticketUpdated(parsedResponse.data));
+  if (response.ok) {
+    const parsedResponse = await response.json();
+    return [false, parsedResponse.data];
+  } else {
+    return [true, null as unknown as Ticket];
+  }
 };
 
 const deleteTicket = async (
-  dispatch: Dispatch,
   token: string,
   data: { _id: string }
-) => {
-  dispatch(slice.actions.ticketsLoading());
+): Promise<[boolean, Ticket]> => {
   const response = await fetch("http://localhost:3001/tickets", {
     method: "DELETE",
     headers: {
@@ -183,8 +193,12 @@ const deleteTicket = async (
       _id: data._id,
     }),
   });
-  const parsedResponse = await response.json();
-  dispatch(slice.actions.ticketDeleted(parsedResponse.data));
+  if (response.ok) {
+    const parsedResponse = await response.json();
+    return [false, parsedResponse.data];
+  } else {
+    return [true, null as unknown as Ticket];
+  }
 };
 
 export { fetchTickets, createTicket, editTicket, completeTicket, deleteTicket };

@@ -4,6 +4,7 @@ import React, { Fragment, useState } from "react";
 import { useEffect } from "react";
 import { useAppSelector } from "../../../../utils/store";
 import { User } from "../../../../utils/types";
+import LoadingSpinner from "../../LoadingSpinner/loadingSpinner";
 
 interface Props {
   placeholder: string;
@@ -12,12 +13,14 @@ interface Props {
   setShowSuggestions: React.Dispatch<React.SetStateAction<boolean>>;
   addToMembersList: (newMember: User) => void;
   value: string;
+  filter?: string;
 }
 const UsersSearchBar = (props: Props): JSX.Element => {
+  const { userData } = useAppSelector((state) => state);
   const [fetchedMembers, setFetchedMembers] = useState([] as User[]);
   const [suggestions, setSuggestions] = useState([] as User[]);
   const [selected, setSelected] = useState("");
-  const { userData } = useAppSelector((state) => state);
+  const [loading, setLoading] = useState(true);
 
   const filterDataFetched = (e: React.FormEvent<HTMLInputElement>): void => {
     const newSuggestions = fetchedMembers.filter(
@@ -38,21 +41,32 @@ const UsersSearchBar = (props: Props): JSX.Element => {
 
   useEffect(() => {
     let isSubscribed = true;
-    fetch("http://localhost:3001/users", {
-      headers: { Authorization: `Bearer ${userData.token}` },
-    })
+    setLoading(true);
+    fetch(
+      `http://localhost:3001/users${
+        props.filter ? `?projectId=${props.filter}` : " "
+      }`,
+      {
+        headers: { Authorization: `Bearer ${userData.token}` },
+      }
+    )
       .then((response) => response.json())
       .then((users) => {
         if (isSubscribed) {
-          setFetchedMembers(users.data);
-          setSuggestions(users.data);
+          const usersFiltered = users.data.filter(
+            (user: User) => user.roles.length > 0
+          );
+
+          setFetchedMembers(usersFiltered);
+          setSuggestions(usersFiltered);
+          setLoading(false);
         }
       });
 
     return () => {
       isSubscribed = false;
     };
-  }, [userData.token]);
+  }, [userData.token, props.filter]);
 
   return (
     <div
@@ -97,11 +111,17 @@ const UsersSearchBar = (props: Props): JSX.Element => {
           props.setShowSuggestions((prevState) => !prevState);
         }}
       >
-        <ChevronDownIcon
-          className={`h-8 ${
-            props.showSuggestions ? "transform rotate-180" : ""
-          } transition-all`}
-        />
+        {loading ? (
+          <LoadingSpinner
+            className={`h-8 w-8 fill-current stroke-current stroke-6`}
+          />
+        ) : (
+          <ChevronDownIcon
+            className={`h-8 ${
+              props.showSuggestions ? "transform rotate-180" : ""
+            } transition-all`}
+          />
+        )}
       </button>
       {props.showSuggestions && (
         <Transition
@@ -139,7 +159,7 @@ const UsersSearchBar = (props: Props): JSX.Element => {
                   </div>
                   <div>
                     {member.roles.map((role) => (
-                      <span key={member.user_id} className="ml-2">
+                      <span key={role} className="ml-2">
                         {role.toUpperCase()}
                       </span>
                     ))}
@@ -156,4 +176,4 @@ const UsersSearchBar = (props: Props): JSX.Element => {
   );
 };
 
-export default UsersSearchBar;
+export default React.memo(UsersSearchBar);
