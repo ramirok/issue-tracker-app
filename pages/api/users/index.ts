@@ -3,7 +3,7 @@ import getManagmentToken from "../../../middleware/utils/auth0";
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import ProjectModel from "../../../models/project.model";
 import UserModel from "../../../models/userData.model";
-import dbConnect from "../../../middleware/mongodb";
+import dbConnect from "../../../lib/mongodb";
 import { validate, validateMiddleware } from "../../../middleware/validate";
 import { validationResult } from "express-validator";
 import responseError from "../../../middleware/utils/handleError";

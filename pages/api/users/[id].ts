@@ -4,7 +4,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { RolesId } from ".";
 import { authorizeMiddleware } from "../../../middleware/authorize";
 
-import dbConnect from "../../../middleware/mongodb";
+import dbConnect from "../../../lib/mongodb";
 import getManagmentToken from "../../../middleware/utils/auth0";
 import responseError from "../../../middleware/utils/handleError";
 import { validate, validateMiddleware } from "../../../middleware/validate";

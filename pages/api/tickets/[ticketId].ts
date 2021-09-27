@@ -8,7 +8,7 @@ import { validate, validateMiddleware } from "../../../middleware/validate";
 import { validationResult } from "express-validator";
 import ProjectModel from "../../../models/project.model";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
-import dbConnect from "../../../middleware/mongodb";
+import dbConnect from "../../../lib/mongodb";
 import responseError from "../../../middleware/utils/handleError";
 import { authorizeMiddleware } from "../../../middleware/authorize";
 import { UserRole } from "../../../utils/types";
