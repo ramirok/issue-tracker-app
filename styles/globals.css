@@ -1,0 +1,11 @@
+/* ./styles/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  font-family: "Arial", sans-serif;
+  font-size: 62.5%;
+  min-height: 100%;
+  background-color: #ededed;
+}
