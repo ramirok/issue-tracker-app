@@ -5,8 +5,6 @@ import {
   CollectionIcon,
   UserGroupIcon,
   ViewListIcon,
-  // SearchIcon,
-  // UserIcon,
   ArrowSmLeftIcon,
   TemplateIcon,
 } from "@heroicons/react/solid";

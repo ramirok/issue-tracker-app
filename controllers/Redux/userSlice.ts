@@ -19,21 +19,6 @@ const slice = createSlice({
 
 export default slice.reducer;
 
-// const fetchUserData = async (dispatch: Dispatch, token) => {
-//   // const response = await fetch("http://localhost:3001/users", {
-//   const response = await fetch("/api/users", {
-//     method: "POST",
-//     headers: {
-//       Authorization: `Bearer ${token}`,
-//     },
-//   });
-//   const parsedResponse = await response.json();
-
-//   dispatch(
-//     slice.actions.getUser({ token, userData: { ...parsedResponse.data } })
-//   );
-// };
-
 const fetchUserData = async (dispatch: Dispatch) => {
   const response = await fetch("/api/users", {
     method: "POST",

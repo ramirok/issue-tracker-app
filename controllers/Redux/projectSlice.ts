@@ -56,12 +56,6 @@ export const {
   projectDeleted,
 } = slice.actions;
 
-// const fetchProjects = async (dispatch: Dispatch) => {
-//   dispatch(slice.actions.projectsLoading());
-//   const response = await fetch("http://localhost:3001/projects");
-//   const parsedResponse = await response.json();
-//   dispatch(slice.actions.projectsReceived(parsedResponse.data));
-// };
 const fetchProjects = async (dispatch: Dispatch) => {
   dispatch(slice.actions.projectsLoading());
   const response = await fetch("/api/projects");
@@ -76,7 +70,6 @@ const createProject = async (data: {
   members: User[];
 }) => {
   const members = data.members.map((member) => member.user_id);
-  // dispatch(slice.actions.projectsLoading());
   const response = await fetch("/api/projects", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -93,11 +86,9 @@ const createProject = async (data: {
   } else {
     return [true, null];
   }
-  // dispatch(slice.actions.projectCreated(parsedResponse.data));
 };
 
 const completeProject = async (data: { completed: boolean; _id: string }) => {
-  // dispatch(slice.actions.projectsLoading());
   const response = await fetch("/api/projects", {
     method: "PUT",
     headers: {
@@ -114,7 +105,6 @@ const completeProject = async (data: { completed: boolean; _id: string }) => {
   } else {
     return [true, null];
   }
-  // dispatch(slice.actions.projectUpdated(parsedResponse.data));
 };
 
 const editProject = async (data: {
@@ -125,7 +115,6 @@ const editProject = async (data: {
   tags: string[];
 }) => {
   const members = data.members.map((member) => member.user_id);
-  // dispatch(slice.actions.projectsLoading());
   const response = await fetch("/api/projects", {
     method: "PUT",
     headers: {
@@ -145,11 +134,9 @@ const editProject = async (data: {
   } else {
     return [true, null];
   }
-  // dispatch(slice.actions.projectUpdated(parsedResponse.data));
 };
 
 const deleteProject = async (data: { _id: string }) => {
-  // dispatch(slice.actions.projectsLoading());
   const response = await fetch("/api/projects", {
     method: "DELETE",
     headers: {
@@ -165,7 +152,6 @@ const deleteProject = async (data: { _id: string }) => {
   } else {
     return [true, null];
   }
-  // dispatch(slice.actions.projectDeleted(parsedResponse.data));
 };
 
 export {

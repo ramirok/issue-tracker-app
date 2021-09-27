@@ -51,7 +51,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       }
       return res.status(400).json({ message: "failed to perform task" });
     } catch (error) {
-      // return next(error);
       responseError(error, res);
     }
   }

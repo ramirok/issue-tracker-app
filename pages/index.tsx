@@ -77,7 +77,6 @@ const Landing = (): JSX.Element => {
               src="/assets/mobile.png"
               height="413"
               width="199"
-              // layout="responsive"
               className="rounded-lg"
             />
           </div>
@@ -87,7 +86,6 @@ const Landing = (): JSX.Element => {
               src="/assets/mobile-2.png"
               height="413"
               width="199"
-              // layout="responsive"
               className="rounded-lg"
             />
           </div>

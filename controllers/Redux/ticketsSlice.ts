@@ -60,22 +60,6 @@ export const {
   ticketCreated,
 } = slice.actions;
 
-// const fetchTickets = async (
-//   token: string,
-//   projectId: string = ""
-// ): Promise<Ticket[]> => {
-//   const response = await fetch(
-//     `http://localhost:3001/tickets/${projectId ? `project/${projectId}` : ""}`,
-//     {
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//       },
-//     }
-//   );
-//   const parsedResponse = await response.json();
-//   return parsedResponse.data;
-// };
-
 const fetchTickets = async (projectId: string = ""): Promise<Ticket[]> => {
   const response = await fetch(
     `/api/tickets/${projectId ? `project/${projectId}` : ""}`
