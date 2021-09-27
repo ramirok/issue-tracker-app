@@ -7,6 +7,7 @@ import { validationResult } from "express-validator";
 import responseError from "../../../../middleware/utils/handleError";
 import { authorizeMiddleware } from "../../../../middleware/authorize";
 import { UserRole } from "../../../../utils/types";
+import dbConnect from "../../../../lib/mongodb";
 
 const validateGetTicketsByProject = validateMiddleware(
   validate("getTicketsByProject"),
@@ -16,6 +17,7 @@ const validateGetTicketsByProject = validateMiddleware(
 const getTicketsByProjectAccessControl = authorizeMiddleware(UserRole.dev);
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
+  await dbConnect();
   try {
     const user = await getTicketsByProjectAccessControl(req, res);
     await validateGetTicketsByProject(req, res);

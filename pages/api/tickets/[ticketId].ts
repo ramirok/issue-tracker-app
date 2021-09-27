@@ -21,12 +21,11 @@ const validateGetSingleTicket = validateMiddleware(
 const getSingleTicketAccessControl = authorizeMiddleware(UserRole.dev);
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
+  await dbConnect();
   try {
     await getSingleTicketAccessControl(req, res);
-
     await validateGetSingleTicket(req, res);
 
-    await dbConnect();
     const { ticketId } = req.query;
     const session = getSession(req, res);
     const roles = session?.user["http://localhost:3000/roles"];
