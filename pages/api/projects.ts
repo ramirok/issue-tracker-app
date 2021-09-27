@@ -1,4 +1,4 @@
-import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
+import { withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { validationResult } from "express-validator";
 import { NextApiRequest, NextApiResponse } from "next";
 import { authorizeMiddleware } from "../../middleware/authorize";
@@ -8,7 +8,7 @@ import { validate, validateMiddleware } from "../../middleware/validate";
 import { UserRole } from "../../utils/types";
 import ProjectModel, { Project } from "../../models/project.model";
 import TicketModel from "../../models/ticket.model";
-import "../../../models/userData.model";
+import "../../models/userData.model";
 
 const validateCreateProject = validateMiddleware(
   validate("createProject"),
