@@ -287,9 +287,9 @@ const TicketCardFullScreen = (props: Props): JSX.Element => {
               </span>
               <div className="font-bold px-2 flex items-center">
                 <div
-                  className={`h-4 w-4 bg-${
-                    ticketData.completed ? "green" : "red"
-                  }-500 mr-2 rounded-full`}
+                  className={`h-4 w-4 ${
+                    ticketData.completed ? "bg-green-500" : "bg-red-500"
+                  } mr-2 rounded-full`}
                 ></div>
                 {ticketData.completed ? "Completed" : "Incompleted"}
               </div>
@@ -297,19 +297,19 @@ const TicketCardFullScreen = (props: Props): JSX.Element => {
 
             <div className="border rounded-xl p-2">
               <div
-                className={`px-4 py-2 text-${
+                className={`px-4 py-2 ${
                   ticketData.priority === TicketPriority.low
-                    ? "green"
+                    ? "text-green-500"
                     : ticketData.priority === TicketPriority.mid
-                    ? "yellow"
-                    : "red"
-                }-500 bg-${
+                    ? "text-yellow-500"
+                    : "text-red-500"
+                } ${
                   ticketData.priority === TicketPriority.low
-                    ? "green"
+                    ? "bg-green-100"
                     : ticketData.priority === TicketPriority.mid
-                    ? "yellow"
-                    : "red"
-                }-100 rounded-md font-bold`}
+                    ? "bg-yellow-100"
+                    : "bg-red-100"
+                } rounded-md font-bold`}
               >
                 Priority {ticketData.priority.toUpperCase()}
               </div>

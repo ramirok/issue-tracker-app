@@ -70,8 +70,8 @@ const ProjectCard = (props: Props): JSX.Element => {
   return (
     <div className="mb-4 mr-4 flex-grow relative">
       <div
-        className={`shadow-lg rounded-2xl p-4 bg-${
-          project.completed ? "gray-300" : "white"
+        className={`shadow-lg rounded-2xl p-4 ${
+          project.completed ? "bg-gray-300" : "bg-white"
         }  w-full`}
       >
         <div className="flex items-center justify-between mb-6">
@@ -238,9 +238,9 @@ const ProjectCard = (props: Props): JSX.Element => {
 
         {/* date tag */}
         <span
-          className={`px-2 py-1 flex w-auto mt-4 items-center text-base rounded-md font-semibold text-${
-            project.completed ? "green" : "purple"
-          }-500 bg-${project.completed ? "green" : "purple"}-100`}
+          className={`px-2 py-1 flex w-auto mt-4 items-center text-base rounded-md font-semibold ${
+            project.completed ? "text-green-500" : "text-purple-500"
+          } ${project.completed ? "bg-green-100" : "bg-purple-100"}`}
         >
           {project.completed ? "COMPLETED - " : null}
           CREATED: {new Date(project.createdAt).toLocaleString()}

@@ -101,8 +101,8 @@ const TicketCard = (props: Props): JSX.Element => {
   return (
     <div className="mb-4 mr-4 flex-grow relative">
       <div
-        className={`shadow-lg rounded-2xl p-4 bg-${
-          ticketData.completed ? "gray-300" : "white"
+        className={`shadow-lg rounded-2xl p-4 ${
+          ticketData.completed ? "bg-gray-300" : "bg-white"
         } w-full h-full flex flex-col justify-between`}
       >
         {/* title */}
@@ -221,8 +221,8 @@ const TicketCard = (props: Props): JSX.Element => {
                   leaveTo="transform  opacity-0 absolute top-0 bottom-0 w-full z-10"
                 >
                   <Disclosure.Panel
-                    className={`overflow-auto border border-purple-100 rounded-lg w-full top-0 bottom-0 left-0 right-0 z-10 absolute bg-${
-                      ticketData.completed ? "gray-200" : "white"
+                    className={`overflow-auto border border-purple-100 rounded-lg w-full top-0 bottom-0 left-0 right-0 z-10 absolute ${
+                      ticketData.completed ? "bg-gray-200" : "bg-white"
                     } p-4 text-gray-900`}
                   >
                     <Disclosure.Button className="flex w-full justify-between items-center">
@@ -254,8 +254,8 @@ const TicketCard = (props: Props): JSX.Element => {
                     leaveTo="transform  opacity-0 absolute top-0 bottom-0 w-full z-10"
                   >
                     <Disclosure.Panel
-                      className={`overflow-auto border border-purple-100 rounded-lg w-full top-0 bottom-0 left-0 right-0 z-10 absolute bg-${
-                        ticketData.completed ? "gray-200" : "white"
+                      className={`overflow-auto border border-purple-100 rounded-lg w-full top-0 bottom-0 left-0 right-0 z-10 absolute ${
+                        ticketData.completed ? "bg-gray-200" : "bg-white"
                       } p-4 text-gray-900`}
                     >
                       <Disclosure.Button className="flex w-full justify-between items-center">
@@ -351,19 +351,19 @@ const TicketCard = (props: Props): JSX.Element => {
               </div>
             ) : (
               <div
-                className={`w-full px-2 py-1 text-base rounded-md font-semibold text-${
+                className={`w-full px-2 py-1 text-base rounded-md font-semibold ${
                   ticketData.priority === TicketPriority.low
-                    ? "green"
+                    ? "text-green-500"
                     : ticketData.priority === TicketPriority.mid
-                    ? "yellow"
-                    : "red"
-                }-500 bg-${
+                    ? "text-yellow-500"
+                    : "text-red-500"
+                } ${
                   ticketData.priority === TicketPriority.low
-                    ? "green"
+                    ? "bg-green-100"
                     : ticketData.priority === TicketPriority.mid
-                    ? "yellow"
-                    : "red"
-                }-100`}
+                    ? "bg-yellow-100"
+                    : "bg-red-100"
+                }`}
               >
                 PRIORITY: {ticketData.priority.toUpperCase()}
               </div>

@@ -138,11 +138,13 @@ const UserCard = (props: Props): JSX.Element => {
                   {roles.map((role) => (
                     <span
                       key={role}
-                      className={`mb-2 px-2 py-1 flex justify-between items-center text-basea rounded-md font-semibold text-${
-                        activeRoles[role].active ? "green-500" : "gray-300"
-                      } bg-${
-                        activeRoles[role].active ? "green" : "gray"
-                      }-50 w-64`}
+                      className={`mb-2 px-2 py-1 flex justify-between items-center text-basea rounded-md font-semibold ${
+                        activeRoles[role].active
+                          ? "text-green-500"
+                          : "text-gray-300"
+                      } ${
+                        activeRoles[role].active ? "bg-green-50" : "bg-gray-50"
+                      } w-64`}
                     >
                       {role === "dev"
                         ? UserRole.dev
@@ -171,14 +173,14 @@ const UserCard = (props: Props): JSX.Element => {
                             activeRoles[role].active
                               ? "translate-x-3"
                               : "translate-x-0"
-                          } flex items-center justify-center w-7 h-7 transform bg-${
+                          } flex items-center justify-center w-7 h-7 transform ${
                             sendingRequest && !activeRoles[role].loading
-                              ? "gray-300"
-                              : "white"
-                          } rounded-full transition-all border border-${
+                              ? "bg-gray-300"
+                              : "bg-white"
+                          } rounded-full transition-all border ${
                             activeRoles[role].active
-                              ? "green-500"
-                              : "purple-300"
+                              ? "border-green-500"
+                              : "border-purple-300"
                           }`}
                         >
                           {activeRoles[role].loading ? (
@@ -195,11 +197,13 @@ const UserCard = (props: Props): JSX.Element => {
                 {roles.map((role) => (
                   <span
                     key={role}
-                    className={`mb-2 px-2 py-1 flex items-center text-basea rounded-md font-semibold text-${
-                      activeRoles[role].active ? "green-500" : "gray-300"
-                    } bg-${
-                      activeRoles[role].active ? "green" : "gray"
-                    }-50 w-64`}
+                    className={`mb-2 px-2 py-1 flex items-center text-basea rounded-md font-semibold ${
+                      activeRoles[role].active
+                        ? "text-green-500"
+                        : "text-gray-300"
+                    } ${
+                      activeRoles[role].active ? "bg-green-50" : "bg-gray-50"
+                    } w-64`}
                   >
                     {role === "dev"
                       ? UserRole.dev

@@ -63,9 +63,7 @@ const Header = (): JSX.Element => {
                     </a>
                     <div>
                       <div className="border-b-2 text-xl">
-                        <div
-                          className={`${"text-gray-900"} group flex rounded-lg items-center w-full px-2 py-2 justify-between font-medium`}
-                        >
+                        <div className="text-gray-900 group flex rounded-lg items-center w-full px-2 py-2 justify-between font-medium">
                           ADMIN CREDENTIALS
                         </div>
                         <span
@@ -102,9 +100,7 @@ const Header = (): JSX.Element => {
                     </div>
                     <div>
                       <div className="border-b-2 text-xl">
-                        <div
-                          className={`${"text-gray-900"} group flex rounded-lg items-center w-full px-2 py-2 justify-between font-medium`}
-                        >
+                        <div className="text-gray-900 group flex rounded-lg items-center w-full px-2 py-2 justify-between font-medium">
                           PM CREDENTIALS
                         </div>
                         <span
@@ -139,9 +135,7 @@ const Header = (): JSX.Element => {
                     </div>
                     <div>
                       <div className="text-xl">
-                        <div
-                          className={`${"text-gray-900"} group flex rounded-lg items-center w-full px-2 py-2 justify-between font-medium`}
-                        >
+                        <div className="text-gray-900 group flex rounded-lg items-center w-full px-2 py-2 justify-between font-medium">
                           DEV CREDENTIALS
                         </div>
                         <span

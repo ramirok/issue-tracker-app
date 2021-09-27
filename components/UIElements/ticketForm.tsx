@@ -381,13 +381,13 @@ const TicketForm = (props: Props): JSX.Element => {
                           <span className="block truncate">
                             <div className="flex items-center">
                               <span
-                                className={`bg-${
+                                className={`${
                                   data.priority === TicketPriority.low
-                                    ? "green"
+                                    ? "bg-green-500"
                                     : data.priority === TicketPriority.mid
-                                    ? "yellow"
-                                    : "red"
-                                }-500 w-4 h-4 rounded-full mr-1`}
+                                    ? "bg-yellow-500"
+                                    : "bg-red-500"
+                                } w-4 h-4 rounded-full mr-1`}
                               ></span>
                               <span className={"block truncate font-normal"}>
                                 {data.priority}
