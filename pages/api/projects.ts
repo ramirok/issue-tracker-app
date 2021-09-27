@@ -5,9 +5,10 @@ import { authorizeMiddleware } from "../../middleware/authorize";
 import dbConnect from "../../lib/mongodb";
 import responseError from "../../middleware/utils/handleError";
 import { validate, validateMiddleware } from "../../middleware/validate";
+import { UserRole } from "../../utils/types";
 import ProjectModel, { Project } from "../../models/project.model";
 import TicketModel from "../../models/ticket.model";
-import { UserRole } from "../../utils/types";
+import "../../../models/userData.model";
 
 const validateCreateProject = validateMiddleware(
   validate("createProject"),

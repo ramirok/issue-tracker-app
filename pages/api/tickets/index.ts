@@ -5,9 +5,10 @@ import { authorizeMiddleware } from "../../../middleware/authorize";
 import dbConnect from "../../../lib/mongodb";
 import responseError from "../../../middleware/utils/handleError";
 import { validate, validateMiddleware } from "../../../middleware/validate";
+import { UserRole } from "../../../utils/types";
 import ProjectModel from "../../../models/project.model";
 import TicketModel, { Ticket } from "../../../models/ticket.model";
-import { UserRole } from "../../../utils/types";
+import "../../../models/userData.model";
 
 const validateCreateTicket = validateMiddleware(
   validate("createTicket"),
@@ -149,37 +150,37 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   if (req.method == "GET") {
-    // try {
-    const user = await getTicketsAccessControl(req, res);
-    const roles = user?.["http://localhost:3000/roles"];
-    const isAdmin = roles?.includes("admin");
+    try {
+      const user = await getTicketsAccessControl(req, res);
+      const roles = user?.["http://localhost:3000/roles"];
+      const isAdmin = roles?.includes("admin");
 
-    const projects = await ProjectModel.find({
-      membersId: user?.sub,
-    });
+      const projects = await ProjectModel.find({
+        membersId: user?.sub,
+      });
 
-    const queryOptions: { [k: string]: any } = {};
+      const queryOptions: { [k: string]: any } = {};
 
-    if (!isAdmin) {
-      queryOptions.projectId = {
-        $in: projects.map((project) => project._id),
-      };
+      if (!isAdmin) {
+        queryOptions.projectId = {
+          $in: projects.map((project) => project._id),
+        };
+      }
+      let tickets;
+
+      tickets = await TicketModel.find(queryOptions)
+        .limit(3)
+        .sort({ createdAt: "desc" })
+        .populate("members")
+        .populate("project");
+
+      return res.json({
+        message: "Tickets returned successfully",
+        data: tickets,
+      });
+    } catch (error) {
+      responseError(error, res);
     }
-    let tickets;
-
-    tickets = await TicketModel.find(queryOptions)
-      .limit(3)
-      .sort({ createdAt: "desc" })
-      .populate("members")
-      .populate("project");
-
-    return res.json({
-      message: "Tickets returned successfully",
-      data: tickets,
-    });
-    // } catch (error) {
-    //   responseError(error, res);
-    // }
   }
 };
 
