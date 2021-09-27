@@ -1,6 +1,5 @@
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { NextApiRequest, NextApiResponse } from "next";
-import dbConnect from "../../lib/mongodb";
 import { authorizeMiddleware } from "../../middleware/authorize";
 import responseError from "../../middleware/utils/handleError";
 import CommentModel, { Comment } from "../../models/comment.model";
@@ -9,8 +8,6 @@ import { UserRole } from "../../utils/types";
 const CommentAccessControl = authorizeMiddleware(UserRole.dev);
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
-  await dbConnect();
-
   try {
     const user = await CommentAccessControl(req, res);
 
