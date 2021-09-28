@@ -93,8 +93,8 @@ const TicketCard = (props: Props): JSX.Element => {
           return newState;
         });
       }
-      const tickets = await fetchTickets();
-      dispatch(ticketsReceived(tickets));
+      const [error, tickets] = await fetchTickets();
+      dispatch(ticketsReceived(error ? [] : tickets!));
     }
   };
 
