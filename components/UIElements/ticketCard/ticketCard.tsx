@@ -215,9 +215,9 @@ const TicketCard = (props: Props): JSX.Element => {
                 <Transition
                   enter="transition duration-100 ease-out"
                   enterFrom="transform  opacity-0"
-                  enterTo="transform  opacity-100 absolute inset-0 bottom-0 w-full z-10"
+                  enterTo="transform  opacity-100 absolute inset-0 bottom-0a w-full z-10"
                   leave="transition duration-100 ease-out"
-                  leaveFrom="transform  opacity-100"
+                  leaveFrom="transform  opacity-100 absolute inset-0"
                   leaveTo="transform  opacity-0 absolute bottom-0 w-full z-10"
                 >
                   <Disclosure.Panel
