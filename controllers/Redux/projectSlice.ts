@@ -54,13 +54,18 @@ export const {
   projectCreated,
   projectUpdated,
   projectDeleted,
+  projectsReceived,
 } = slice.actions;
 
-const fetchProjects = async (dispatch: Dispatch) => {
-  dispatch(slice.actions.projectsLoading());
+const fetchProjects = async (): Promise<[boolean, Project[] | null]> => {
   const response = await fetch("/api/projects");
-  const parsedResponse = await response.json();
-  dispatch(slice.actions.projectsReceived(parsedResponse.data));
+
+  if (response.ok) {
+    const parsedResponse = await response.json();
+    return [false, parsedResponse.data];
+  } else {
+    return [true, null];
+  }
 };
 
 const createProject = async (data: {

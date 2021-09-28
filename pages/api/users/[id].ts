@@ -77,12 +77,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       const userId = req.query.id;
       const newRole: Roles = req.body.role;
       const userFound = await UserModel.findOne({ user_id: userId });
-      const roleAlreadyAdded = userFound.roles.includes(newRole);
-      if (!roleAlreadyAdded) {
-        return res.json({ message: "role removed successfully" });
-      }
-
       if (userFound) {
+        const roleAlreadyAdded = userFound.roles.includes(newRole);
+        if (!roleAlreadyAdded) {
+          return res.json({ message: "role removed successfully" });
+        }
         const token = await getManagmentToken();
         const response = await fetch(
           `https://dev-98dsvvx8.us.auth0.com/api/v2/users/${userId}/roles`,
@@ -97,6 +96,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             }),
           }
         );
+
         if (response.status === 204) {
           userFound.roles = userFound.roles.filter(
             (role: string) => role !== newRole

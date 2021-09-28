@@ -12,7 +12,11 @@ import { CalendarIcon } from "@heroicons/react/outline";
 import { Menu, Popover, Transition } from "@headlessui/react";
 import { Fragment, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { fetchProjects } from "../controllers/Redux/projectSlice";
+import {
+  fetchProjects,
+  projectsLoading,
+  projectsReceived,
+} from "../controllers/Redux/projectSlice";
 import { useAppSelector } from "../redux/store";
 import {
   fetchTickets,
@@ -34,10 +38,18 @@ const Shell = ({
 
   const dispatch = useDispatch();
   useEffect(() => {
-    fetchProjects(dispatch);
+    // fetch projects
+    dispatch(projectsLoading());
+    fetchProjects().then((response) => {
+      const [error, data] = response;
+      dispatch(projectsReceived(error ? [] : data!));
+    });
+
+    // fetch tickets
     dispatch(ticketsLoading());
     fetchTickets().then((response) => {
-      dispatch(ticketsReceived(response));
+      const [error, data] = response;
+      dispatch(ticketsReceived(error ? [] : data!));
     });
   }, [dispatch]);
 

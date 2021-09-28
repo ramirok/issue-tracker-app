@@ -37,8 +37,8 @@ const TicketPage = (): JSX.Element => {
   const fetchTicketsToShow = useCallback(
     async (project: Project): Promise<void> => {
       setLoading(true);
-      const tickets = await fetchTickets(project._id);
-      setTicketsToShow(tickets);
+      const [error, tickets] = await fetchTickets(project._id);
+      setTicketsToShow(error ? [] : tickets!);
       setLoading(false);
     },
     []
@@ -158,7 +158,55 @@ const TicketPage = (): JSX.Element => {
               </Transition>
             </div>
           </Listbox>
-        ) : null}
+        ) : (
+          <Listbox value={projectFilter} onChange={() => {}}>
+            <div className="h-full mr-4 flex-grow max-w-xs bg-white rounded-2xl shadow-md">
+              <Listbox.Button className="text-left h-full w-full py-2 px-4 flex items-center justify-between">
+                No Projects...
+                <div>
+                  <SelectorIcon className="h-8" />
+                </div>
+              </Listbox.Button>
+              <Transition
+                as={Fragment}
+                leave="transition ease-in duration-100"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <Listbox.Options className="z-10 absolute w-full max-w-xs py-1 mt-1 overflow-auto bg-white rounded-md shadow-lg max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none">
+                  <Listbox.Option
+                    key="all"
+                    value={ref.current}
+                    className={({ active }) =>
+                      `${active ? "bg-purple-100" : ""}
+                  cursor-default select-none relative py-2 px-4 flex justify-between items-center`
+                    }
+                  >
+                    {({ selected }) => (
+                      <>
+                        <span className={"block truncate font-normal"}>
+                          No Projects...
+                        </span>
+                        {selected ? (
+                          <span
+                            className={`${
+                              selected
+                                ? "bg-purple-500 rounded-full text-white"
+                                : ""
+                            }
+                          flex items-center`}
+                          >
+                            <CheckIcon className="h-6" aria-hidden="true" />
+                          </span>
+                        ) : null}
+                      </>
+                    )}
+                  </Listbox.Option>
+                </Listbox.Options>
+              </Transition>
+            </div>
+          </Listbox>
+        )}
 
         <div className="flex-grow  max-w-xs bg-white h-full rounded-2xl shadow-md py-2 px-4 flex items-center justify-between mr-2">
           <span className=" mr-2 text-left">Show Completed</span>
