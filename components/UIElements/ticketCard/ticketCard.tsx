@@ -215,13 +215,13 @@ const TicketCard = (props: Props): JSX.Element => {
                 <Transition
                   enter="transition duration-100 ease-out"
                   enterFrom="transform  opacity-0"
-                  enterTo="transform  opacity-100 absolute top-0 bottom-0 w-full z-10"
+                  enterTo="transform  opacity-100 absolute inset-0 bottom-0 w-full z-10"
                   leave="transition duration-100 ease-out"
                   leaveFrom="transform  opacity-100"
-                  leaveTo="transform  opacity-0 absolute top-0 bottom-0 w-full z-10"
+                  leaveTo="transform  opacity-0 absolute bottom-0 w-full z-10"
                 >
                   <Disclosure.Panel
-                    className={`overflow-auto border border-purple-100 rounded-lg w-full top-0 bottom-0 left-0 right-0 z-10 absolute ${
+                    className={`overflow-auto border border-purple-100 rounded-lg w-full inset-0 z-10 absolute ${
                       ticketData.completed ? "bg-gray-200" : "bg-white"
                     } p-4 text-gray-900`}
                   >
@@ -248,13 +248,13 @@ const TicketCard = (props: Props): JSX.Element => {
                   <Transition
                     enter="transition duration-100 ease-out"
                     enterFrom="transform  opacity-0"
-                    enterTo="transform  opacity-100 absolute top-0 bottom-0 w-full z-10"
+                    enterTo="transform  opacity-100 absolute inset-0 bottom-0 w-full z-10"
                     leave="transition duration-100 ease-out"
                     leaveFrom="transform  opacity-100"
-                    leaveTo="transform  opacity-0 absolute top-0 bottom-0 w-full z-10"
+                    leaveTo="transform  opacity-0 absolute bottom-0 w-full z-10"
                   >
                     <Disclosure.Panel
-                      className={`overflow-auto border border-purple-100 rounded-lg w-full top-0 bottom-0 left-0 right-0 z-10 absolute ${
+                      className={`overflow-auto border border-purple-100 rounded-lg w-full inset-0 z-10 absolute ${
                         ticketData.completed ? "bg-gray-200" : "bg-white"
                       } p-4 text-gray-900`}
                     >

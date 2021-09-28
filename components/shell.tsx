@@ -132,7 +132,7 @@ const Shell = ({
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
                   >
-                    <Menu.Items className="z-10 text-lg absolute left-0 top-full w-64 mt-2 origin-top-left bg-white divide-y divide-gray-100 rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <Menu.Items className="z-20 text-lg absolute left-0 top-full w-64 mt-2 origin-top-left bg-white divide-y divide-gray-100 rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <div className="px-1 py-1 ">
                         <Menu.Item>
                           <button
@@ -281,7 +281,7 @@ const Shell = ({
           </header>
 
           {/* general panel */}
-          <div className="pt-2 pr-2 pl-2 md:pt-0 md:pr-0 md:pl-0 w-full h-full overflow-y-auto">
+          <div className="pt-2 pr-2 pl-2 md:pt-0 md:pr-0 md:pl-0 w-full h-full overflow-y-auto overflow-x-hidden pb-10">
             <div className="flex flex-col flex-wrap sm:flex-row items-stretch -mr-4 mb-20">
               {children}
             </div>
