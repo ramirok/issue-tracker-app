@@ -88,8 +88,8 @@ const TicketCardFullScreen = (props: Props): JSX.Element => {
     if (error) {
       setLoading(false);
     } else {
-      const tickets = await fetchTickets();
-      dispatch(ticketsReceived(tickets));
+      const [error, tickets] = await fetchTickets();
+      dispatch(ticketsReceived(error ? [] : tickets!));
       router.back();
     }
   };
