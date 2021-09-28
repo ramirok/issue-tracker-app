@@ -16,8 +16,8 @@ const Header = (): JSX.Element => {
     <div className="flex w-full bg-white h-28 items-center justify-between font-semibold text-gray-600 text-2xl px-4 sm:px-10">
       <Link href="/">
         <a>
-          <div className="h-16 fill-current text-gray-400 flex items-center">
-            <TemplateIcon />
+          <div className="w-min fill-current text-gray-400 flex items-center">
+            <TemplateIcon className="h-24 w-auto" />
             <p>ISSUE TRACKER </p>
           </div>
         </a>
