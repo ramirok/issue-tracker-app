@@ -35,7 +35,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (req.method == "DELETE") {
     try {
-      const user = await deleteProjectAccessControl(req, res);
+      await deleteProjectAccessControl(req, res);
       await validateDeleteProject(req, res);
 
       const { _id } = req.body;
@@ -58,16 +58,15 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (req.method == "PUT") {
     try {
-      const user = await editProjectAccessControl(req, res);
+      await editProjectAccessControl(req, res);
       await validateEditProject(req, res);
 
-      const userEmail = user?.email;
       const { _id, projectName, companyName, completed, members, tags } =
         req.body;
       const existingProject = await ProjectModel.findOne({
-        owner: userEmail,
         _id,
       });
+
       if (existingProject) {
         existingProject.projectName =
           projectName || existingProject.projectName;
